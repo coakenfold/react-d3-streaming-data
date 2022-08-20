@@ -4,6 +4,7 @@ import fs from "fs";
 import https from "https";
 import WebSocket from "ws";
 import { SineDataEmitter } from "./sineDataEmitter";
+import { logger } from "./logger";
 dotenv.config();
 
 const app: Express = express();
@@ -23,9 +24,15 @@ const server = https.createServer(
 
 const wss = new WebSocket.Server({ server });
 const sde = new SineDataEmitter();
+
 wss.on("connection", (ws: WebSocket) => {
   var interval = setInterval(() => {
-    ws.send(`${JSON.stringify(sde.next())}`);
+    const next = sde.next();
+    logger.log({
+      level: "info",
+      ...next,
+    });
+    ws.send(`${JSON.stringify(next)}`);
   }, 1000);
 
   ws.on("error", () => {
