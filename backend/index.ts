@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import https from "https";
 import WebSocket from "ws";
-
+import { SineDataEmitter } from "./sineDataEmitter";
 dotenv.config();
 
 const app: Express = express();
@@ -22,16 +22,27 @@ const server = https.createServer(
 );
 
 const wss = new WebSocket.Server({ server });
+const sde = new SineDataEmitter();
 wss.on("connection", (ws: WebSocket) => {
-  //connection is up, let's add a simple simple event
-  ws.on("message", (message: string) => {
-    //log the received message and send it back to the client
-    console.log("received: %s", message);
-    ws.send(`Hello, you sent -> ${message}`);
+  var interval = setInterval(() => {
+    ws.send(`${JSON.stringify(sde.next())}`);
+  }, 1000);
+
+  ws.on("error", () => {
+    console.log('websocket "error" event');
+    clearInterval(interval);
+  });
+  ws.on("close", () => {
+    console.log('websocket "close" event');
+    clearInterval(interval);
   });
 
-  //send immediatly a feedback to the incoming connection
-  ws.send("Hi there, I am a WebSocket server");
+  ws.on("message", (message: string) => {
+    console.log('websocket "message" event');
+    clearInterval(interval);
+  });
+
+  ws.send(`${JSON.stringify(sde.current)}`);
 });
 
 server.listen(port, () => {
