@@ -25,6 +25,7 @@ yarn-error.log*
 backend/node_modules
 backend/.env
 backend/build
+backend/logs
 
 # To generate cert/key:
 # > openssl req -nodes -new -x509 -keyout server.key -out server.cert

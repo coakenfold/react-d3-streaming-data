@@ -1,17 +1,37 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import fs from "fs";
 import https from "https";
 import WebSocket from "ws";
 import { SineDataEmitter } from "./sineDataEmitter";
-import { logger } from "./logger";
+import { logger, PATH_LOG_SINE } from "./logger";
+import { convertLogToArray } from "./convertLogToArray";
+// ENV
 dotenv.config();
+const PORT = process.env.PORT;
+const URL = process.env.URL;
+
+// CONSTANTS
+const INTERVAL_MS = 1000;
 
 const app: Express = express();
-const port = process.env.PORT;
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+app.get("/", (req: Request, res: Response, next: NextFunction) => {
+  fs.readFile(
+    PATH_LOG_SINE,
+    { encoding: "utf8", flag: "r" },
+    function (err, data) {
+      if (err) {
+        console.log(err);
+        logger.log({
+          level: "error",
+          ...err,
+        });
+        next(err);
+      } else {
+        res.json(convertLogToArray(data));
+      }
+    }
+  );
 });
 
 const server = https.createServer(
@@ -22,36 +42,40 @@ const server = https.createServer(
   app
 );
 
-const wss = new WebSocket.Server({ server });
 const sde = new SineDataEmitter();
 
+// WebSocket
+const wss = new WebSocket.Server({ server });
 wss.on("connection", (ws: WebSocket) => {
-  var interval = setInterval(() => {
-    const next = sde.next();
-    logger.log({
-      level: "info",
-      ...next,
-    });
-    ws.send(`${JSON.stringify(next)}`);
-  }, 1000);
+  const notifyWebSocketInterval = setInterval(() => {
+    ws.send(`${JSON.stringify(sde.current)}`);
+  }, INTERVAL_MS);
 
-  ws.on("error", () => {
-    console.log('websocket "error" event');
-    clearInterval(interval);
-  });
-  ws.on("close", () => {
-    console.log('websocket "close" event');
-    clearInterval(interval);
-  });
+  const wsClearInterval = () => {
+    clearInterval(notifyWebSocketInterval);
+  };
 
-  ws.on("message", (message: string) => {
-    console.log('websocket "message" event');
-    clearInterval(interval);
-  });
-
+  ws.on("error", wsClearInterval);
+  ws.on("close", wsClearInterval);
   ws.send(`${JSON.stringify(sde.current)}`);
 });
 
-server.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
+// Populate logs when server is running
+let populateLogsInterval: ReturnType<typeof setInterval>;
+const populateLogs = () => {
+  console.log(`Server is populating log`);
+  populateLogsInterval = setInterval(() => {
+    const next = sde.next();
+    logger.log({
+      level: "sine",
+      ...next,
+    });
+  }, INTERVAL_MS);
+};
+
+server.listen(PORT, () => {
+  console.log(`⚡️ Server is running at ${URL}:${PORT}`);
+  if (populateLogsInterval === undefined) {
+    populateLogs();
+  }
 });

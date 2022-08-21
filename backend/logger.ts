@@ -1,15 +1,19 @@
 const { createLogger, format, transports } = require("winston");
+export const PATH_LOG_COMBINED = "./logs/combined.log";
+export const PATH_LOG_ERROR = "./logs/error.log";
+export const PATH_LOG_SINE = "./logs/sine.log";
 
-const getLogFileName = () => {
-  const date = new Date();
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const zeroPrefix = (number: number) => {
-    return number < 10 ? "0" + number : number;
-  };
-  return `${zeroPrefix(day)}-${zeroPrefix(month)}-${date.getFullYear()}`;
+export const customLogLevels = {
+  levels: {
+    sine: 0,
+    error: 1,
+    info: 2,
+    debug: 3,
+  },
 };
+
 export const logger = createLogger({
+  levels: customLogLevels.levels,
   level: "info",
   format: format.combine(
     format.timestamp({
@@ -19,13 +23,16 @@ export const logger = createLogger({
   ),
   transports: [
     new transports.File({
-      filename: `./logs/error-${getLogFileName()}.log`,
+      filename: PATH_LOG_ERROR,
       level: "error",
     }),
     new transports.File({
-      filename: `./logs/combined-${getLogFileName()}.log`,
+      filename: PATH_LOG_SINE,
+      level: "sine",
+    }),
+    ,
+    new transports.File({
+      filename: PATH_LOG_COMBINED,
     }),
   ],
 });
-
-logger;

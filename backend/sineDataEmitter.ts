@@ -1,6 +1,6 @@
 export const SineDataEmitter = class {
-  // maxX = 1.7976931348623157 * 10308;
-  maxX = 5;
+  // JS max number
+  maxX = 1.7976931348623157 * 10308;
   x = 0;
   _current = {
     x: 0,
