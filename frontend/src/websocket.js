@@ -1,10 +1,9 @@
+// TODO: RECONNECT LOGIC
 export const websocket = () => {
-  let socket = new WebSocket("wss://localhost:8000/");
+  let socket = new WebSocket(process.env.REACT_APP_URL_WEBSOCKET_SERVER);
 
   socket.onopen = function (e) {
     console.log("CLIENT:[open] Connection established");
-    // console.log("CLIENT:Sending to server");
-    // socket.send(">this came from the client<");
   };
 
   socket.onmessage = function (event) {
