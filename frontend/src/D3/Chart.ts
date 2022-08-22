@@ -27,46 +27,49 @@ export const Chart = class {
       .attr("width", arg.containerWidth)
       .attr("height", arg.containerHeight);
   }
-  update(sineData: SineDataItemInterface[]) {
-    // Scales
+  update(sineData: [number, number][]) {
+    const lineWidth = 1;
+
+    // Scale
     const scaleX = d3
       .scaleLinear()
-      // .domain([0, d3.max(sineData, ({ x }: SineDataItemInterface) => x)])
-      .domain([0, 1.7976931348623157 * 10308])
+      .domain([
+        d3.min(sineData, (d) => d[0]) as number,
+        d3.max(sineData, (d) => d[0]) as number,
+      ])
       .range([0, this.containerWidth]);
     const scaleY = d3
       .scaleLinear()
       .domain([-1, 1])
-      .range([0, this.containerHeight - this.elemHeight]);
+      .range([0, this.containerHeight - lineWidth]);
 
-    console.log("debug", this);
-    // Data Join
-    const rects = this.container.selectAll("rect").data(sineData);
-
-    // Exit
-    rects.exit().remove();
-
-    // Update
-    rects
-      .attr("x", (data, i) => {
-        return this.containerWidth - this.elemWidth * i;
+    // Curved line interpolator.
+    const bezierLine = d3
+      .line()
+      .curve(d3.curveBasis)
+      .x((d, i) => {
+        console.log(d, i, scaleX(d[0]));
+        return scaleX(d[0]);
       })
-      .attr("y", (data, i) => {
-        return scaleY(data.y);
+      .y((d) => scaleY(d[1]));
+
+    // Draw line & animate.
+    const line = this.container
+      .append("path")
+      .datum(sineData)
+      .attr("stroke", "black")
+      .attr("stroke-width", lineWidth)
+      .attr("fill", "none")
+      .attr("d", (d) => {
+        return bezierLine(d as [number, number][]);
       });
 
-    // Enter
-    rects
-      .enter()
-      .append("rect")
-      .attr("x", (data, i) => {
-        return this.containerWidth - this.elemWidth;
-      })
-      .attr("y", (data, i) => {
-        return scaleY(data.y);
-      })
-      .attr("width", this.elemWidth)
-      .attr("height", this.elemHeight)
-      .attr("fill", "green");
+    line
+      .transition("grow")
+      .duration(900)
+      .attrTween("stroke-dasharray", function () {
+        const len = this.getTotalLength();
+        return (t) => d3.interpolateString("0," + len, len + ",0")(t);
+      });
   }
 };
