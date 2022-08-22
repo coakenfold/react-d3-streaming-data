@@ -1,34 +1,47 @@
 import * as d3 from "d3"; // <-- todo optimize later
 
 import { SineDataItemInterface } from "../interfaces";
+export interface ChartConstructor {
+  containerNode: HTMLDivElement;
+  containerWidth: number;
+  containerHeight: number;
+  elemWidth: number;
+  elemHeight: number;
+}
+export const Chart = class {
+  container;
+  containerWidth;
+  containerHeight;
+  elemWidth;
+  elemHeight;
+  constructor(arg: ChartConstructor) {
+    this.containerWidth = arg.containerWidth;
+    this.containerHeight = arg.containerHeight;
+    this.elemWidth = arg.elemWidth;
+    this.elemHeight = arg.elemHeight;
 
-export const Chart = (element: HTMLDivElement | null) => {
-  const WIDTH = 500;
-  const HEIGHT = 500;
-  const RECT_WIDTH = 10;
-  const RECT_HEIGHT = 10;
+    // Parent
+    this.container = d3
+      .select(arg.containerNode)
+      .append("svg")
+      .attr("width", arg.containerWidth)
+      .attr("height", arg.containerHeight);
+  }
+  update(sineData: SineDataItemInterface[]) {
+    // Scales
+    const scaleX = d3
+      .scaleLinear()
+      // .domain([0, d3.max(sineData, ({ x }: SineDataItemInterface) => x)])
+      .domain([0, 1.7976931348623157 * 10308])
+      .range([0, this.containerWidth]);
+    const scaleY = d3
+      .scaleLinear()
+      .domain([-1, 1])
+      .range([0, this.containerHeight - this.elemHeight]);
 
-  // Parent
-  const svg = d3
-    .select(element)
-    .append("svg")
-    .attr("width", WIDTH)
-    .attr("height", HEIGHT);
-
-  // Scales
-  const y = d3
-    .scaleLinear()
-    .domain([-1, 1])
-    .range([0, HEIGHT - RECT_HEIGHT]);
-  var x = d3
-    .scaleLinear()
-    .domain([0, 1.7976931348623157 * 10308])
-    .range([0, WIDTH]);
-
-  const update = (sineData: SineDataItemInterface[]) => {
+    console.log("debug", this);
     // Data Join
-    const rects = svg.selectAll("rect").data(sineData);
-    console.log("i am update", sineData);
+    const rects = this.container.selectAll("rect").data(sineData);
 
     // Exit
     rects.exit().remove();
@@ -36,18 +49,10 @@ export const Chart = (element: HTMLDivElement | null) => {
     // Update
     rects
       .attr("x", (data, i) => {
-        return WIDTH - RECT_WIDTH;
+        return this.containerWidth - this.elemWidth * i;
       })
       .attr("y", (data, i) => {
-        return 0; //y(data.y);
-      })
-      .attr("width", RECT_WIDTH)
-      .attr("height", RECT_HEIGHT)
-      .attr("fill", "green")
-      .transition()
-      .duration(500)
-      .attr("y", (data, i) => {
-        return y(data.y);
+        return scaleY(data.y);
       });
 
     // Enter
@@ -55,15 +60,13 @@ export const Chart = (element: HTMLDivElement | null) => {
       .enter()
       .append("rect")
       .attr("x", (data, i) => {
-        console.log("enter", data);
-        return x(data.x);
+        return this.containerWidth - this.elemWidth;
       })
       .attr("y", (data, i) => {
-        return y(data.y);
+        return scaleY(data.y);
       })
-      .attr("width", RECT_WIDTH)
-      .attr("height", RECT_HEIGHT)
+      .attr("width", this.elemWidth)
+      .attr("height", this.elemHeight)
       .attr("fill", "green");
-  };
-  return { update };
+  }
 };

@@ -1,5 +1,5 @@
 export interface SineDataItemInterface {
-  timestamp: string;
+  timestamp?: string;
   x: number;
   y: number;
 }
