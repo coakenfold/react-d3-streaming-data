@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@reduxjs/toolkit": "^1.8.5",
     "d3": "^7.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -41,7 +42,7 @@
     "@types/d3": "^7.4.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.11.49",
-    "@types/react-dom": "^18.0.6",
-    "@types/react": "^18.0.17"
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6"
   }
 }
