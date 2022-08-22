@@ -16,7 +16,10 @@ export const Chart = (element: HTMLDivElement | null) => {
     .attr("height", HEIGHT);
 
   // Scales
-  const y = d3.scaleLinear().domain([-1, 1]).range([0, 50]);
+  const y = d3
+    .scaleLinear()
+    .domain([-1, 1])
+    .range([0, HEIGHT - RECT_HEIGHT]);
   var x = d3
     .scaleLinear()
     .domain([0, 1.7976931348623157 * 10308])
@@ -33,8 +36,7 @@ export const Chart = (element: HTMLDivElement | null) => {
     // Update
     rects
       .attr("x", (data, i) => {
-        console.log("update", data);
-        return x(data.x);
+        return WIDTH - RECT_WIDTH;
       })
       .attr("y", (data, i) => {
         return 0; //y(data.y);
