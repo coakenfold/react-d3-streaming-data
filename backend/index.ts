@@ -3,9 +3,12 @@ import dotenv from "dotenv";
 import fs from "fs";
 import https from "https";
 import WebSocket from "ws";
+import cors from "cors";
+
 import { SineDataEmitter } from "./sineDataEmitter";
 import { logger, PATH_LOG_SINE } from "./logger";
 import { convertLogToArray } from "./convertLogToArray";
+
 // ENV
 dotenv.config();
 const PORT = process.env.PORT;
@@ -15,6 +18,8 @@ const URL = process.env.URL;
 const INTERVAL_MS = 1000;
 
 const app: Express = express();
+
+app.use(cors());
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   fs.readFile(
     PATH_LOG_SINE,
