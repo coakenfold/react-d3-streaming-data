@@ -1,27 +1,27 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useState } from "react";
 import "./App.css";
 import { SineChart } from "./SineChart/SineChart";
-import { updateRealtime } from "./SineChart/sineCoordinates";
+import { SineChartDataService } from "./SineChart/SineChartDataService";
 
-import { WebSocketHelper } from "./WebSocketHelper";
+import { Table } from "./Table/Table";
 
-let sineLogger: any;
-function App() {
-  const dispatch = useDispatch();
-  if (sineLogger === undefined) {
-    sineLogger = new WebSocketHelper({
-      url: process.env.REACT_APP_URL_WEBSOCKET_SERVER as string,
-      onMessage: (event: any) => {
-        dispatch(updateRealtime(JSON.parse(event.data)));
-      },
-    });
-  }
+const sc = new SineChartDataService();
+sc.getRealtime();
+sc.getLogData();
+
+export const App = () => {
+  const [tabIndex, setTabIndex] = useState(0);
+
   return (
-    <div className="App">
-      <SineChart />
-    </div>
+    <>
+      <div className="App">
+        <button onClick={() => setTabIndex(0)}>Chart</button>
+        <button onClick={() => setTabIndex(1)}>Table</button>
+        {tabIndex === 0 ? <SineChart /> : <></>}
+        {tabIndex === 1 ? <Table /> : <></>}
+      </div>
+    </>
   );
-}
+};
 
 export default App;

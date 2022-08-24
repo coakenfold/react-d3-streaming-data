@@ -4,7 +4,7 @@ import "./SineChart.css";
 import type { RootState } from "../store";
 import { ChartSine } from "../D3/ChartSine";
 
-export function SineChart() {
+export const SineChart = () => {
   // Setup for D3/Chart
   const nodeRef = useRef<null | HTMLDivElement>(null);
   const [ChartContainer, SetChartContainer] = useState<any>();
@@ -39,4 +39,4 @@ export function SineChart() {
     }
   }, [ChartContainer, realtime]);
   return <div ref={nodeRef} />;
-}
+};
