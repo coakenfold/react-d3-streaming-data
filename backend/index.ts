@@ -48,7 +48,6 @@ const server = https.createServer(
 );
 
 const sde = new SineDataEmitter();
-
 // WebSocket
 const wss = new WebSocket.Server({ server });
 wss.on("connection", (ws: WebSocket) => {
@@ -68,7 +67,7 @@ wss.on("connection", (ws: WebSocket) => {
 // Populate logs when server is running
 let populateLogsInterval: ReturnType<typeof setInterval>;
 const populateLogs = () => {
-  console.log(`Server is populating log`);
+  console.log(`Server is updating the sine log`);
   populateLogsInterval = setInterval(() => {
     const next = sde.next();
     logger.log({
