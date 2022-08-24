@@ -1,42 +1,42 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
-// import { updateRealtime, replaceLog } from "./sineCoordinates";
+import { useSelector } from "react-redux";
+import "./SineChart.css";
 import type { RootState } from "../store";
-import { Chart } from "../D3/Chart";
+import { ChartSine } from "../D3/ChartSine";
 
 export function SineChart() {
   // Setup for D3/Chart
   const nodeRef = useRef<null | HTMLDivElement>(null);
   const [ChartContainer, SetChartContainer] = useState<any>();
+
   useEffect(() => {
-    if (nodeRef.current) {
-      SetChartContainer(
-        new Chart({
-          containerNode: nodeRef.current,
-          containerHeight: 500,
-          containerWidth: 500,
-          elemHeight: 10,
-          elemWidth: 10,
-        })
-      );
-    }
+    const className = "SineChart";
+    const chart = new ChartSine({
+      domNode: nodeRef.current as HTMLDivElement,
+      svg: { width: 500, height: 500, className },
+      dot: { radius: 10 },
+      sine: { frequency: 25 },
+      line: { color: "black", width: 1 },
+    });
+
+    SetChartContainer(chart);
+
+    return () => {
+      chart.destroy();
+      SetChartContainer(undefined);
+    };
   }, []);
 
   // Redux
   const realtime = useSelector(
     (state: RootState) => state.sineCoordinates.realtime
   );
-  //   const log = useSelector((state: RootState) => state.sineCoordinates.log);
-  //   useEffect(() => {
-  //     ChartContainer.update(realtime);
-  //   }, [ChartContainer, realtime]);
-  //   ChartContainer.update({ x: 200, y: 200 });
   useEffect(() => {
-    ChartContainer?.update(realtime);
+    if (ChartContainer?.hasBuilt === true) {
+      ChartContainer?.update(realtime);
+    } else {
+      ChartContainer?.build(realtime);
+    }
   }, [ChartContainer, realtime]);
-  return (
-    <>
-      <div ref={nodeRef} />
-    </>
-  );
+  return <div ref={nodeRef} />;
 }

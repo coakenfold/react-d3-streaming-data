@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { SineDataItemInterface } from "../interfaces";
 
 export interface SineCoordinatesState {
-  realtime: [number, number][];
+  realtime: SineDataItemInterface[];
   log: SineDataItemInterface[];
 }
 
@@ -11,7 +11,6 @@ const initialState: SineCoordinatesState = {
   realtime: [],
   log: [],
 };
-
 export const sineCoordinatesSlice = createSlice({
   name: "sineCoordinates",
   initialState,
@@ -20,7 +19,7 @@ export const sineCoordinatesSlice = createSlice({
     // doesn't actually mutate the state because it uses the Immer library,
     // which detects changes to a "draft state" and produces a brand new
     // immutable state based off those changes
-    updateRealtime: (state, action: PayloadAction<[number, number]>) => {
+    updateRealtime: (state, action: PayloadAction<SineDataItemInterface>) => {
       state.realtime.push(action.payload);
     },
     replaceLog: (state, action: PayloadAction<SineDataItemInterface[]>) => {

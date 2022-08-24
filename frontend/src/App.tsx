@@ -13,8 +13,7 @@ function App() {
     sineLogger = new WebSocketHelper({
       url: process.env.REACT_APP_URL_WEBSOCKET_SERVER as string,
       onMessage: (event: any) => {
-        const { x, y } = JSON.parse(event.data);
-        dispatch(updateRealtime([x, y]));
+        dispatch(updateRealtime(JSON.parse(event.data)));
       },
     });
   }
