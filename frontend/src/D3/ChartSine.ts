@@ -1,6 +1,6 @@
 import * as D3 from "d3"; // <-- todo optimize later
 
-import { SineDataItemInterface } from "../interfaces";
+import { SineDatumInterface } from "../SineChart/SineChartInterfaces";
 
 interface lineInterface {
   width: number;
@@ -104,11 +104,11 @@ export const ChartSine = class {
       axisY,
     };
   }
-  generatePathData(sineData: SineDataItemInterface[]) {
+  generatePathData(sineData: SineDatumInterface[]) {
     const initialX = sineData[0]?.x || 0;
     return sineData.map(({ x, y }) => [x - initialX, y]);
   }
-  build(sineData: SineDataItemInterface[]) {
+  build(sineData: SineDatumInterface[]) {
     // reformat
     const pathData = this.generatePathData(sineData);
 
@@ -146,7 +146,7 @@ export const ChartSine = class {
     this.grapher.scaleY = scaleY;
     this.grapher.scaleX = scaleX;
   }
-  update(sineData: SineDataItemInterface[]) {
+  update(sineData: SineDatumInterface[]) {
     // Clear
     // D3.selectAll("path").remove();
 
