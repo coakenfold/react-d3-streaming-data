@@ -15,12 +15,7 @@ export const customLogLevels = {
 export const logger = createLogger({
   levels: customLogLevels.levels,
   level: "info",
-  format: format.combine(
-    format.timestamp({
-      format: "DD-MM-YYYY HH:mm:ss",
-    }),
-    format.json()
-  ),
+  format: format.combine(format.json()),
   transports: [
     new transports.File({
       filename: PATH_LOG_ERROR,
