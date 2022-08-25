@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
@@ -7,14 +7,36 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
 import { SineCoordinatesDataService } from "./SineCoordinatesDataService";
+
 import { ChartSine } from "../ChartSine/ChartSine";
 import { TableSine } from "../TableSine/TableSine";
 
-const sc = new SineCoordinatesDataService();
-sc.init();
-
 export const SineCoordinates = () => {
   const [tabIndex, setTabIndex] = useState(0);
+  const [dataService, setDataService] = useState<any>();
+  const [logError, setLogError] = useState(false);
+  const [realtimeError, setRealtimeError] = useState(false);
+  useEffect(() => {
+    if (dataService === undefined) {
+      const sc = new SineCoordinatesDataService({
+        onErrorLog: (errLog) => {
+          console.log("Error getting logs", errLog);
+          setLogError(true);
+        },
+        onErrorRealtime: (errLog) => {
+          console.log("Error connecting to websocket", errLog);
+          setRealtimeError(true);
+        },
+      });
+      setDataService(sc);
+    }
+    if (dataService) {
+      dataService.init();
+    }
+    return () => {
+      dataService?.destroy();
+    };
+  }, [dataService]);
   return (
     <div className="SineComponent">
       <Container>
@@ -44,14 +66,30 @@ export const SineCoordinates = () => {
           </Col>
         </Row>
         <Row>
-          {tabIndex === 0 ? (
-            <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-              <ChartSine />
-            </div>
-          ) : (
-            <></>
+          {tabIndex === 0 && (
+            <>
+              {realtimeError === true && (
+                <div className="alert alert-info" role="alert">
+                  Realtime updates are temporarily unavailable
+                </div>
+              )}
+              {realtimeError === false && (
+                <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+                  <ChartSine />
+                </div>
+              )}
+            </>
           )}
-          {tabIndex === 1 ? <TableSine /> : <></>}
+          {tabIndex === 1 && (
+            <>
+              {logError === true && (
+                <div className="alert alert-info" role="alert">
+                  Sine logs are temporarily unavailable
+                </div>
+              )}
+              {logError === false && <TableSine />}
+            </>
+          )}
         </Row>
       </Container>
     </div>

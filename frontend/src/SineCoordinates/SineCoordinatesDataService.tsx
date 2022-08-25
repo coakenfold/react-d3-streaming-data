@@ -7,31 +7,45 @@ import {
 } from "./SineCoordinatesState";
 
 export const getSineData = () => {
-  return window.fetch(process.env.REACT_APP_SINE_DATA_URL as string).then(
-    (response) => {
-      if (response.status === 200) {
-        return response.json();
+  return window
+    .fetch(process.env.REACT_APP_SINE_DATA_URL as string)
+    .then(
+      (response) => {
+        if (response.status === 200) {
+          return response.json();
+        }
+        return { ok: false, status: response.status };
+      },
+      (error) => {
+        // Server AWOL
+        return { ok: false, error };
       }
-      const { ok, status } = response;
-      return { ok, status };
-    },
-    (error) => {
-      // Server AWOL
-      return { ok: false, error };
-    }
-  );
+    )
+    .then((data) => {
+      if (data.ok === false) {
+        return data;
+      }
+      return { ok: true, data };
+    });
 };
 
+export interface iSineCoordinatesDataService {
+  onErrorRealtime?: (msg?: any) => void;
+  onErrorLog?: (msg?: any) => void;
+}
+const initialOnErroRealtime = (msg?: any) => {};
+const initialOnErrorLog = (msg?: any) => {};
 export const SineCoordinatesDataService = class {
   websocket: any;
-  getLogData() {
-    const fetchData = async () => {
-      const { ok, data } = await getSineData();
-      if (ok) {
-        store.dispatch(replaceLog(data));
-      }
-    };
-    fetchData();
+  onErrorRealtime = initialOnErroRealtime;
+  onErrorLog = initialOnErrorLog;
+  constructor(opts = {} as iSineCoordinatesDataService) {
+    if (opts?.onErrorRealtime) {
+      this.onErrorRealtime = opts.onErrorRealtime;
+    }
+    if (opts?.onErrorLog) {
+      this.onErrorLog = opts.onErrorLog;
+    }
   }
   getRealtime() {
     this.websocket = new WebSocketHelper({
@@ -39,14 +53,27 @@ export const SineCoordinatesDataService = class {
       onMessage: (event: any) => {
         store.dispatch(updateRealtime(JSON.parse(event.data)));
       },
+      onError: (err) => {
+        this.onErrorRealtime(err);
+      },
     });
   }
-  init() {
+  async init() {
+    // Realtime
     store.dispatch(resetRealtime());
-    this.getLogData();
     this.getRealtime();
+
+    // Log
+    const logResult = await getSineData();
+    if (logResult.ok) {
+      store.dispatch(replaceLog(logResult.data));
+    } else {
+      this.onErrorLog(logResult);
+    }
   }
   destroy() {
+    this.onErrorRealtime = initialOnErroRealtime;
+    this.onErrorLog = initialOnErrorLog;
     if (this.websocket.socket.readyState === WebSocket.OPEN) {
       this.websocket.socket.close();
     }
