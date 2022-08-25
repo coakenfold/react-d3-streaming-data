@@ -28,6 +28,7 @@ export const SineCoordinates = () => {
                 variant="outline-secondary"
                 active={tabIndex === 0}
                 onClick={() => setTabIndex(0)}
+                data-testid="buttonChart"
               >
                 Chart
               </Button>
@@ -35,6 +36,7 @@ export const SineCoordinates = () => {
                 variant="outline-secondary"
                 active={tabIndex === 1}
                 onClick={() => setTabIndex(1)}
+                data-testid="buttonTable"
               >
                 Table
               </Button>

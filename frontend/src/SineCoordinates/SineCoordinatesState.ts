@@ -2,12 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { iSineDatum } from "./SineCoordinatesInterfaces";
 
-export interface SineCoordinatesState {
+export interface iSineCoordinatesState {
   realtime: iSineDatum[];
   log: iSineDatum[];
 }
 
-const initialState: SineCoordinatesState = {
+export const initialState: iSineCoordinatesState = {
   realtime: [],
   log: [],
 };
