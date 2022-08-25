@@ -1,7 +1,11 @@
 import { store } from "../state";
 import { WebSocketHelper } from "../WebSocketHelper";
 import type { iSineDatum } from "./SineCoordinatesInterfaces";
-import { updateRealtime, replaceLog } from "./SineCoordinatesState";
+import {
+  updateRealtime,
+  replaceLog,
+  resetRealtime,
+} from "./SineCoordinatesState";
 
 export const getSineData = () => {
   return window
@@ -28,5 +32,16 @@ export const SineCoordinatesDataService = class {
         store.dispatch(updateRealtime(JSON.parse(event.data)));
       },
     });
+  }
+  init() {
+    store.dispatch(resetRealtime());
+    this.getLogData();
+    this.getRealtime();
+  }
+  destroy() {
+    if (this.websocket.socket.readyState === WebSocket.OPEN) {
+      this.websocket.socket.close();
+    }
+    this.websocket = undefined;
   }
 };

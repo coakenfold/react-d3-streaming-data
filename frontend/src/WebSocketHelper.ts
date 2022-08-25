@@ -44,4 +44,7 @@ export const WebSocketHelper = class {
     this._socket.onclose = onClose || _onClose;
     this._socket.onerror = onError || _onError;
   }
+  get socket() {
+    return this._socket;
+  }
 };

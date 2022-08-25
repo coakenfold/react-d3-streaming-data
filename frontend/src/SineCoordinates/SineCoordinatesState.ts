@@ -22,6 +22,9 @@ export const sineCoordinatesSlice = createSlice({
     updateRealtime: (state, action: PayloadAction<iSineDatum>) => {
       state.realtime.push(action.payload);
     },
+    resetRealtime: (state) => {
+      state.realtime = [];
+    },
     replaceLog: (state, action: PayloadAction<iSineDatum[]>) => {
       state.log = action.payload;
     },
@@ -29,6 +32,7 @@ export const sineCoordinatesSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { updateRealtime, replaceLog } = sineCoordinatesSlice.actions;
+export const { updateRealtime, replaceLog, resetRealtime } =
+  sineCoordinatesSlice.actions;
 
 export default sineCoordinatesSlice.reducer;

@@ -11,12 +11,10 @@ import { ChartSine } from "../ChartSine/ChartSine";
 import { TableSine } from "../TableSine/TableSine";
 
 const sc = new SineCoordinatesDataService();
-sc.getRealtime();
-sc.getLogData();
+sc.init();
 
 export const SineCoordinates = () => {
   const [tabIndex, setTabIndex] = useState(0);
-
   return (
     <div className="SineComponent">
       <Container>
