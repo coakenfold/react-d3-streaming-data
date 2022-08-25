@@ -1,34 +1,14 @@
-import * as d3 from "d3"; // <-- todo optimize later
-
-import { SineDatumInterface } from "../SineChart/SineChartInterfaces";
-
-interface lineInterface {
-  width: number;
-  color?: string;
-  fill?: string;
-}
-interface sineInterface {
-  frequency: number;
-  amplitude?: number;
-  start?: number;
-}
-
-export interface ChartSineConstructor {
-  domNode: HTMLDivElement;
-  margin?: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
-  svg?: { width?: number; height?: number; className: string };
-  line?: lineInterface;
-  dot?: { radius: number };
-  sine?: sineInterface;
-}
+import * as d3 from "d3";
+import {
+  iLine,
+  iSine,
+  iSineDatum,
+  iChartSineConstructor,
+} from "../SineCoordinates/SineCoordinatesInterfaces";
 
 export const ChartSine = class {
-  options: ChartSineConstructor & { line: lineInterface; sine: sineInterface };
+  //
+  options: iChartSineConstructor & { line: iLine; sine: iSine };
   grapher: {
     svg: any;
     scaleX: any;
@@ -42,7 +22,8 @@ export const ChartSine = class {
     height: number;
   };
   hasBuilt = false;
-  constructor(opts: ChartSineConstructor) {
+  //
+  constructor(opts: iChartSineConstructor) {
     const dot = { radius: 2, ...opts.dot };
     const line = {
       width: 2,
@@ -127,15 +108,17 @@ export const ChartSine = class {
       axisY,
     };
   }
-  generatePathData(sineData: SineDatumInterface[]) {
+  //
+  generatePathData(sineData: iSineDatum[]) {
     const initialX = sineData[0]?.x || 0;
     return sineData.map(({ x, y }) => [x - initialX, y]);
   }
-  build(sineData: SineDatumInterface[]) {
-    // reformat
+  //
+  build(sineData: iSineDatum[]) {
+    // Reformat data
     const pathData = this.generatePathData(sineData);
 
-    // Scales
+    // Create scales
     const scaleY = this.grapher.scaleY;
     const scaleX = d3
       .scaleLinear()
@@ -145,7 +128,7 @@ export const ChartSine = class {
       ])
       .range([0, this.canvas.width]);
 
-    // Generator
+    // Create line generator
     const line = d3
       .line()
       .curve(d3.curveNatural)
@@ -165,48 +148,19 @@ export const ChartSine = class {
       .attr("fill", fill)
       .attr("d", line(pathData as [number, number][]));
 
-    // save
+    // Save
     this.hasBuilt = true;
     this.grapher.line = line;
     this.grapher.scaleY = scaleY;
     this.grapher.scaleX = scaleX;
   }
-  update(sineData: SineDatumInterface[]) {
-    // Clear
-    // d3.selectAll("path").remove();
-
-    // reformat
+  update(sineData: iSineDatum[]) {
+    // Reformat data
     const pathData = this.generatePathData(sineData);
 
-    // Scales
-    // const scaleY = this.grapher.scaleY;
-    const scaleX = d3
-      .scaleLinear()
-      .domain([
-        d3.min(pathData, (set) => set[0]) || 0,
-        d3.max(pathData, (set) => set[0]) || 0,
-      ])
-      .range([0, this.canvas.width]);
-
     // Draw
-    this.grapher.svg.transition();
-
-    this.grapher.svg
-      .select(".line")
-      .attr("d", this.grapher.line(pathData as [number, number][]));
-
-    // Animate
-    // line
-    // .transition("grow")
-    // .duration(900)
-    // .attrTween("stroke-dasharray", function () {
-    //   const len = this.getTotalLength();
-    //   return (t) => d3.interpolateString("0," + len, len + ",0")(t);
-    // });
-
-    // save
-    // this.grapher.scaleY = scaleY;
-    this.grapher.scaleX = scaleX;
+    const line = this.grapher.svg.select(".line");
+    line.attr("d", this.grapher.line(pathData as [number, number][]));
   }
   destroy() {
     d3.select(`svg.${this.options.svg?.className}`).remove();

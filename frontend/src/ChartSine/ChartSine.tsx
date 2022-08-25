@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import type { RootState } from "../store";
-import { ChartSine } from "../D3/ChartSine";
+import type { RootState } from "../state";
+import { ChartSine as D3ChartSine } from "../D3/ChartSine";
 
-export const SineChart = () => {
+export const ChartSine = () => {
   // Setup for D3/Chart
   const nodeRef = useRef<null | HTMLDivElement>(null);
   const [ChartContainer, SetChartContainer] = useState<any>();
 
   useEffect(() => {
-    const className = "SineChart";
-    const chart = new ChartSine({
+    const className = "ChartSine";
+    const chart = new D3ChartSine({
       domNode: nodeRef.current as HTMLDivElement,
       svg: { width: 500, height: 500, className },
       margin: {

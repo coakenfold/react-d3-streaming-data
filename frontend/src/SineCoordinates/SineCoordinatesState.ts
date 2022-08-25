@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { SineDatumInterface } from "./SineChartInterfaces";
+import type { iSineDatum } from "./SineCoordinatesInterfaces";
 
 export interface SineCoordinatesState {
-  realtime: SineDatumInterface[];
-  log: SineDatumInterface[];
+  realtime: iSineDatum[];
+  log: iSineDatum[];
 }
 
 const initialState: SineCoordinatesState = {
@@ -19,10 +19,10 @@ export const sineCoordinatesSlice = createSlice({
     // doesn't actually mutate the state because it uses the Immer library,
     // which detects changes to a "draft state" and produces a brand new
     // immutable state based off those changes
-    updateRealtime: (state, action: PayloadAction<SineDatumInterface>) => {
+    updateRealtime: (state, action: PayloadAction<iSineDatum>) => {
       state.realtime.push(action.payload);
     },
-    replaceLog: (state, action: PayloadAction<SineDatumInterface[]>) => {
+    replaceLog: (state, action: PayloadAction<iSineDatum[]>) => {
       state.log = action.payload;
     },
   },

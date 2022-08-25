@@ -6,11 +6,11 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-import { SineChart } from "../SineChart/SineChart";
-import { SineChartDataService } from "../SineChart/SineChartDataService";
-import { Table } from "../Table/Table";
+import { SineCoordinatesDataService } from "./SineCoordinatesDataService";
+import { ChartSine } from "../ChartSine/ChartSine";
+import { TableSine } from "../TableSine/TableSine";
 
-const sc = new SineChartDataService();
+const sc = new SineCoordinatesDataService();
 sc.getRealtime();
 sc.getLogData();
 
@@ -46,12 +46,12 @@ export const SineCoordinates = () => {
         <Row>
           {tabIndex === 0 ? (
             <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-              <SineChart />
+              <ChartSine />
             </div>
           ) : (
             <></>
           )}
-          {tabIndex === 1 ? <Table /> : <></>}
+          {tabIndex === 1 ? <TableSine /> : <></>}
         </Row>
       </Container>
     </div>

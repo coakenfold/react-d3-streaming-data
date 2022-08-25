@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "../store";
+import type { RootState } from "../state";
 
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -18,11 +18,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { getSineData } from "../SineChart/SineChartDataService";
-import type { SineDatumInterface } from "../SineChart/SineChartInterfaces";
-import { replaceLog } from "../SineChart/sineCoordinates";
+import { getSineData } from "../SineCoordinates/SineCoordinatesDataService";
+import { replaceLog } from "../SineCoordinates/SineCoordinatesState";
+import type { iSineDatum } from "../SineCoordinates/SineCoordinatesInterfaces";
 
-const columnHelper = createColumnHelper<SineDatumInterface>();
+const columnHelper = createColumnHelper<iSineDatum>();
 const columns = [
   columnHelper.accessor("timestamp", {
     header: () => <span>Timestamp</span>,
@@ -45,7 +45,7 @@ const columns = [
   }),
 ];
 
-export const Table = () => {
+export const TableSine = () => {
   // Redux
   const dispatch = useDispatch();
   const log = useSelector((state: RootState) => state.sineCoordinates.log);

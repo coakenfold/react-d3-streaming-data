@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import sineCoordinatesReducer from "./SineChart/sineCoordinates";
+import sineCoordinates from "./SineCoordinates/SineCoordinatesState";
 export const store = configureStore({
   reducer: {
-    sineCoordinates: sineCoordinatesReducer,
+    sineCoordinates,
   },
 });
 

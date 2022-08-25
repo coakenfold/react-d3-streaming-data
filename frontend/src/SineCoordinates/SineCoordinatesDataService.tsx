@@ -1,18 +1,18 @@
-import { store } from "../store";
+import { store } from "../state";
 import { WebSocketHelper } from "../WebSocketHelper";
-import type { SineDatumInterface } from "./SineChartInterfaces";
-import { updateRealtime, replaceLog } from "./sineCoordinates";
+import type { iSineDatum } from "./SineCoordinatesInterfaces";
+import { updateRealtime, replaceLog } from "./SineCoordinatesState";
 
 export const getSineData = () => {
   return window
     .fetch(process.env.REACT_APP_SINE_DATA_URL as string)
     .then((response) => response.json())
     .then((data) => {
-      return data as SineDatumInterface[];
+      return data as iSineDatum[];
     });
 };
 
-export const SineChartDataService = class {
+export const SineCoordinatesDataService = class {
   websocket: any;
   getLogData() {
     const fetchData = async () => {

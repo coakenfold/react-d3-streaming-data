@@ -1,5 +1,5 @@
 import React from "react";
-import { store } from "./store";
+import { store } from "./state";
 import { Provider as ReactRedux } from "react-redux";
 
 interface Props {
