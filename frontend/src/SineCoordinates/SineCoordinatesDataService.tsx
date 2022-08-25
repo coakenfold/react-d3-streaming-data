@@ -1,6 +1,5 @@
 import { store } from "../state";
 import { WebSocketHelper } from "../WebSocketHelper";
-import type { iSineDatum } from "./SineCoordinatesInterfaces";
 import {
   updateRealtime,
   replaceLog,
@@ -8,20 +7,29 @@ import {
 } from "./SineCoordinatesState";
 
 export const getSineData = () => {
-  return window
-    .fetch(process.env.REACT_APP_SINE_DATA_URL as string)
-    .then((response) => response.json())
-    .then((data) => {
-      return data as iSineDatum[];
-    });
+  return window.fetch(process.env.REACT_APP_SINE_DATA_URL as string).then(
+    (response) => {
+      if (response.status === 200) {
+        return response.json();
+      }
+      const { ok, status } = response;
+      return { ok, status };
+    },
+    (error) => {
+      // Server AWOL
+      return { ok: false, error };
+    }
+  );
 };
 
 export const SineCoordinatesDataService = class {
   websocket: any;
   getLogData() {
     const fetchData = async () => {
-      const data = await getSineData();
-      store.dispatch(replaceLog(data));
+      const { ok, data } = await getSineData();
+      if (ok) {
+        store.dispatch(replaceLog(data));
+      }
     };
     fetchData();
   }

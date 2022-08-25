@@ -53,15 +53,19 @@ export const TableSine = () => {
   // Log
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getSineData();
-      dispatch(replaceLog(data));
+      const { ok, data } = await getSineData();
+      if (ok) {
+        dispatch(replaceLog(data));
+      }
     };
     fetchData();
   }, [dispatch]);
 
   const rerender = async () => {
-    const data = await getSineData();
-    dispatch(replaceLog(data));
+    const { ok, data } = await getSineData();
+    if (ok) {
+      dispatch(replaceLog(data));
+    }
   };
   const table = useReactTable({
     data: log,
