@@ -22,7 +22,7 @@ const app: Express = express();
 app.use(cors());
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   fs.readFile(
-    PATH_LOG_SINE,
+    `${PATH_LOG_SINE}.${new Date().toISOString().split("T")[0]}`,
     { encoding: "utf8", flag: "r" },
     function (err, data) {
       if (err) {
@@ -72,6 +72,7 @@ const populateLogs = () => {
     const next = sde.next();
     logger.log({
       level: "sine",
+      message: "",
       ...next,
     });
   }, INTERVAL_MS);
