@@ -1,4 +1,4 @@
-import * as D3 from "d3"; // <-- todo optimize later
+import * as d3 from "d3"; // <-- todo optimize later
 
 import { SineDatumInterface } from "../SineChart/SineChartInterfaces";
 
@@ -21,7 +21,7 @@ export interface ChartSineConstructor {
     bottom: number;
     left: number;
   };
-  svg?: { width: number; height: number; className: string };
+  svg?: { width?: number; height?: number; className: string };
   line?: lineInterface;
   dot?: { radius: number };
   sine?: sineInterface;
@@ -58,25 +58,26 @@ export const ChartSine = class {
       ...opts.margin,
     };
     const sine = { frequency: 1, ...opts.sine };
-    const svgSettings = { width: 600, height: 270, className: "", ...opts.svg };
+    const svgSettings = { width: 500, height: 500, className: "", ...opts.svg };
 
     const width = svgSettings.width - margin.left - margin.right;
     const height = svgSettings.height - margin.top - margin.bottom;
-    const svg = D3.select(opts.domNode)
+
+    const svg = d3
+      .select(opts.domNode)
       .append("svg")
       .attr("class", `svg ${svgSettings.className}`)
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("viewBox", `0 0 ${svgSettings.width} ${svgSettings.height}`)
       .append("g")
+      .attr("class", `chart`)
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const scaleX = D3.scaleLinear().range([0, width]);
-
-    const scaleY = D3.scaleLinear().domain([-1, 1]).range([0, height]);
+    const scaleX = d3.scaleLinear().range([0, width]);
+    const scaleY = d3.scaleLinear().domain([-1, 1]).range([0, height]);
 
     // axis
-    const axisX = D3.axisBottom(scaleX);
-    const axisY = D3.axisLeft(scaleY).ticks(5);
+    const axisX = d3.axisBottom(scaleX);
+    const axisY = d3.axisLeft(scaleY).ticks(5);
 
     svg
       .append("g")
@@ -85,6 +86,28 @@ export const ChartSine = class {
       .call(axisX);
 
     svg.append("g").attr("class", "y axis").call(axisY);
+
+    // Zoom
+    // const handleZoom = (e: any) => {
+    //   console.log("handleZoom");
+    //   d3.select("g.chart").attr("transform", e.transform);
+
+    //   d3.select(".x.axis").transition().call(axisX);
+    //   d3.select(".y.axis").transition().call(axisY);
+    // };
+
+    // const zoomSvg = d3.zoom().on("zoom", (e: any) => {
+    //   console.log("zoomSvg");
+    //   d3.select("g.chart").attr("transform", e.transform);
+    // });
+    // d3.select("svg").call(zoomSvg);
+
+    // const zoomX = d3.zoom().on("zoom", (e: any) => {
+    //   console.log("zoomX");
+    //   d3.select(".x.axis").transition().call(axisX);
+    //   d3.select(".x.axis").attr("transform", e.transform);
+    // });
+    // d3.select(".x.axis").call(zoomX);
 
     // save
     this.options = {
@@ -114,16 +137,18 @@ export const ChartSine = class {
 
     // Scales
     const scaleY = this.grapher.scaleY;
-    const scaleX = D3.scaleLinear()
+    const scaleX = d3
+      .scaleLinear()
       .domain([
-        D3.min(pathData, (set) => set[0]) || 0,
-        D3.max(pathData, (set) => set[0]) || 0,
+        d3.min(pathData, (set) => set[0]) || 0,
+        d3.max(pathData, (set) => set[0]) || 0,
       ])
       .range([0, this.canvas.width]);
 
     // Generator
-    const line = D3.line()
-      .curve(D3.curveNatural)
+    const line = d3
+      .line()
+      .curve(d3.curveNatural)
       .x(([x]) => {
         return x * this.options.sine.frequency;
       })
@@ -148,17 +173,18 @@ export const ChartSine = class {
   }
   update(sineData: SineDatumInterface[]) {
     // Clear
-    // D3.selectAll("path").remove();
+    // d3.selectAll("path").remove();
 
     // reformat
     const pathData = this.generatePathData(sineData);
 
     // Scales
     // const scaleY = this.grapher.scaleY;
-    const scaleX = D3.scaleLinear()
+    const scaleX = d3
+      .scaleLinear()
       .domain([
-        D3.min(pathData, (set) => set[0]) || 0,
-        D3.max(pathData, (set) => set[0]) || 0,
+        d3.min(pathData, (set) => set[0]) || 0,
+        d3.max(pathData, (set) => set[0]) || 0,
       ])
       .range([0, this.canvas.width]);
 
@@ -183,6 +209,6 @@ export const ChartSine = class {
     this.grapher.scaleX = scaleX;
   }
   destroy() {
-    D3.select(`svg.${this.options.svg?.className}`).remove();
+    d3.select(`svg.${this.options.svg?.className}`).remove();
   }
 };

@@ -2,7 +2,14 @@ import React, { useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store";
-import { getSineData } from "../SineChart/SineChartDataService";
+
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import Pagination from "react-bootstrap/Pagination";
+import Row from "react-bootstrap/Row";
+
 import {
   createColumnHelper,
   flexRender,
@@ -10,29 +17,31 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
+import { getSineData } from "../SineChart/SineChartDataService";
 import type { SineDatumInterface } from "../SineChart/SineChartInterfaces";
 import { replaceLog } from "../SineChart/sineCoordinates";
-import { TablePagination } from "./TablePagination";
 
 const columnHelper = createColumnHelper<SineDatumInterface>();
 const columns = [
   columnHelper.accessor("timestamp", {
+    header: () => <span>Timestamp</span>,
     cell: (info) =>
       new Intl.DateTimeFormat("en-GB", {
         dateStyle: "short",
         timeStyle: "medium",
       }).format(new Date(info.getValue())),
-    footer: (info) => info.column.id,
+    footer: () => <span>Timestamp</span>,
   }),
   columnHelper.accessor("x", {
     header: () => <span>X</span>,
     cell: (info) => info.renderValue(),
-    footer: (info) => info.column.id,
+    footer: () => <span>X</span>,
   }),
   columnHelper.accessor("y", {
     header: () => <span>Y</span>,
     cell: (info) => info.renderValue(),
-    footer: (info) => info.column.id,
+    footer: () => <span>Y</span>,
   }),
 ];
 
@@ -43,7 +52,6 @@ export const Table = () => {
 
   // Log
   useEffect(() => {
-    console.log("this should only run on mount");
     const fetchData = async () => {
       const data = await getSineData();
       dispatch(replaceLog(data));
@@ -63,57 +71,174 @@ export const Table = () => {
   });
 
   return (
-    <div className="p-2">
-      <button onClick={() => rerender()} className="border p-2">
-        Get latest data
-      </button>
-      <table>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          {table.getFooterGroups().map((footerGroup) => (
-            <tr key={footerGroup.id}>
-              {footerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.footer,
-                        header.getContext()
-                      )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
-      </table>
-      <div className="h-4" />
-      {table !== undefined ? <TablePagination table={table} /> : <></>}
-    </div>
+    <Container>
+      <Row>
+        <Col className="mb-1" xs="auto">
+          <Button variant="outline-primary" onClick={() => rerender()}>
+            Get latest data
+          </Button>
+        </Col>
+        <Col className="mb-1" xs="auto">
+          <Pagination className="mb-4">
+            <Pagination.First
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            />
+            <Pagination.Prev
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            />
+
+            <Pagination.Item disabled>
+              {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </Pagination.Item>
+            <Pagination.Next
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            />
+            <Pagination.Last
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            />
+          </Pagination>
+        </Col>
+        <Col className="mb-1" xs="auto">
+          <Form.Select
+            className="mb-4"
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </Form.Select>
+        </Col>
+        <Col className="mb-1" xs="auto">
+          <Row className="d-flex align-items-center">
+            <Col>Go to page&nbsp;</Col>
+            <Col>
+              <input
+                type="number"
+                defaultValue={table.getState().pagination.pageIndex + 1}
+                onChange={(e) => {
+                  const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                  table.setPageIndex(page);
+                }}
+                className="border p-1 rounded w-16"
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <Row>
+        <table className="table table-striped table-sm">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            {table.getFooterGroups().map((footerGroup) => (
+              <tr key={footerGroup.id}>
+                {footerGroup.headers.map((header) => (
+                  <th key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.footer,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </tfoot>
+        </table>
+      </Row>
+
+      <Row>
+        <Col xs="auto" md={7} lg={4}>
+          <Pagination className="mb-4">
+            <Pagination.First
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            />
+            <Pagination.Prev
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            />
+
+            <Pagination.Item disabled>
+              {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </Pagination.Item>
+            <Pagination.Next
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            />
+            <Pagination.Last
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            />
+          </Pagination>
+        </Col>
+        <Col xs="auto" md={4}>
+          <Form.Select
+            className="mb-4"
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </Form.Select>
+        </Col>
+        <Col xs="auto" md={4}>
+          <div className="mb-4">
+            <span>Go to page&nbsp;</span>
+            <input
+              type="number"
+              defaultValue={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+              }}
+              className="border p-1 rounded w-16"
+            />
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
 };

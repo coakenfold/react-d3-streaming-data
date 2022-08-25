@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import "./SineChart.css";
 import type { RootState } from "../store";
 import { ChartSine } from "../D3/ChartSine";
 
@@ -14,6 +13,12 @@ export const SineChart = () => {
     const chart = new ChartSine({
       domNode: nodeRef.current as HTMLDivElement,
       svg: { width: 500, height: 500, className },
+      margin: {
+        top: 30,
+        right: 30,
+        bottom: 40,
+        left: 40,
+      },
       dot: { radius: 10 },
       sine: { frequency: 25 },
       line: { color: "black", width: 1 },
