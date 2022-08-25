@@ -5,18 +5,13 @@ frontend/coverage
 frontend/.pnp.js
 frontend/.pnp
 
-
-# backend
 backend/.env
+backend/server.cert
+backend/server.key
 backend/node_modules
 backend/build
 backend/logs
-# To generate cert/key:
-# > openssl req -nodes -new -x509 -keyout server.key -out server.cert
-backend/server.cert
-backend/server.key
 
-# misc
 .DS_Store
 .env.local
 .env.development.local
