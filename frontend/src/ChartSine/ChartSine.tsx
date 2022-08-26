@@ -6,7 +6,7 @@ import { ChartSine as D3ChartSine } from "../D3/ChartSine";
 export const ChartSine = () => {
   // Setup for D3/Chart
   const nodeRef = useRef<null | HTMLDivElement>(null);
-  const [ChartContainer, SetChartContainer] = useState<any>();
+  const [grapher, setGrapher] = useState<D3ChartSine | undefined>();
 
   useEffect(() => {
     const className = "ChartSine";
@@ -24,11 +24,11 @@ export const ChartSine = () => {
       line: { color: "black", width: 1 },
     });
 
-    SetChartContainer(chart);
+    setGrapher(chart);
 
     return () => {
       chart.destroy();
-      SetChartContainer(undefined);
+      setGrapher(undefined);
     };
   }, []);
 
@@ -37,11 +37,11 @@ export const ChartSine = () => {
     (state: RootState) => state.sineCoordinates.realtime
   );
   useEffect(() => {
-    if (ChartContainer?.hasBuilt === true) {
-      ChartContainer?.update(realtime);
+    if (grapher?.hasBuilt === true) {
+      grapher.update(realtime);
     } else {
-      ChartContainer?.build(realtime);
+      grapher?.build(realtime);
     }
-  }, [ChartContainer, realtime]);
+  }, [grapher, realtime]);
   return <div ref={nodeRef} />;
 };
