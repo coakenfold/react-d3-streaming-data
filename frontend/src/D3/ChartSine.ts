@@ -108,7 +108,7 @@ export class ChartSine {
     const scaleY = d3.scaleLinear().domain([-1, 1]).range([0, height]);
 
     // Axis functions
-    const axisX = d3.axisBottom(scaleX);
+    const axisX = d3.axisBottom(scaleX).ticks(10);
     const axisY = d3.axisLeft(scaleY).ticks(5);
 
     // Axis groups
@@ -176,12 +176,12 @@ export class ChartSine {
 
     // Create scales
     const scaleY = this.grapher.scaleY;
+    const xMin = d3.min(pathData, (set) => set[0]) || 0;
+    const xMax = d3.max(pathData, (set) => set[0]) || 0;
+
     const scaleX = d3
-      .scaleLinear()
-      .domain([
-        d3.min(pathData, (set) => set[0]) || 0,
-        d3.max(pathData, (set) => set[0]) || 0,
-      ])
+      .scaleTime()
+      .domain([xMin, xMax])
       .range([0, this.canvas.width]);
 
     // Create line generator
