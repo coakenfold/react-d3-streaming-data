@@ -20,9 +20,13 @@ const INTERVAL_MS = 1000;
 const app: Express = express();
 
 app.use(cors());
+const d = new Date();
+const m1 = d.getMonth() + 1;
+const MM = (m1 < 10 ? "0" : "") + m1;
+const YYYYMMDD = `${d.getFullYear()}-${MM}-${d.getDate()}`;
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   fs.readFile(
-    `${PATH_LOG_SINE}.${new Date().toISOString().split("T")[0]}`,
+    `${PATH_LOG_SINE}.${YYYYMMDD}`,
     { encoding: "utf8", flag: "r" },
     function (err, data) {
       if (err) {

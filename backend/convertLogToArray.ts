@@ -1,5 +1,5 @@
 export interface clientSidelogEntry {
-  timestamp: string;
+  timestamp: number;
   x: number;
   y: number;
 }

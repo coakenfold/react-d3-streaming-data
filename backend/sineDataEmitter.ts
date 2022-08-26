@@ -5,7 +5,7 @@ export const SineDataEmitter = class {
   _current = {
     x: 0,
     y: 0,
-    timestamp: "",
+    timestamp: 0,
   };
   constructor(x?: number) {
     if (x === this.maxX) {
@@ -20,7 +20,7 @@ export const SineDataEmitter = class {
     return {
       x: this.x,
       y: Math.sin(this.x),
-      timestamp: new Date(Date.now()).toString(),
+      timestamp: new Date().valueOf(),
     };
   };
   get current() {
