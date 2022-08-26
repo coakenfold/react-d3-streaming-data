@@ -6,7 +6,7 @@ import WebSocket from "ws";
 import cors from "cors";
 
 import { SineDataEmitter } from "./sineDataEmitter";
-import { logger, PATH_LOG_SINE } from "./logger";
+import { logger, latestLog } from "./logger";
 import { convertLogToArray } from "./convertLogToArray";
 
 // ENV
@@ -20,13 +20,10 @@ const INTERVAL_MS = 1000;
 const app: Express = express();
 
 app.use(cors());
-const d = new Date();
-const m1 = d.getMonth() + 1;
-const MM = (m1 < 10 ? "0" : "") + m1;
-const YYYYMMDD = `${d.getFullYear()}-${MM}-${d.getDate()}`;
+
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   fs.readFile(
-    `${PATH_LOG_SINE}.${YYYYMMDD}`,
+    latestLog(),
     { encoding: "utf8", flag: "r" },
     function (err, data) {
       if (err) {
@@ -51,12 +48,12 @@ const server = https.createServer(
   app
 );
 
-const sde = new SineDataEmitter();
+const sineDataEmitter = new SineDataEmitter();
 // WebSocket
 const wss = new WebSocket.Server({ server });
 wss.on("connection", (ws: WebSocket) => {
   const notifyWebSocketInterval = setInterval(() => {
-    ws.send(`${JSON.stringify(sde.current)}`);
+    ws.send(`${JSON.stringify(sineDataEmitter.currentSet)}`);
   }, INTERVAL_MS);
 
   const wsClearInterval = () => {
@@ -65,7 +62,7 @@ wss.on("connection", (ws: WebSocket) => {
 
   ws.on("error", wsClearInterval);
   ws.on("close", wsClearInterval);
-  ws.send(`${JSON.stringify(sde.current)}`);
+  ws.send(`${JSON.stringify(sineDataEmitter.currentSet)}`);
 });
 
 // Populate logs when server is running
@@ -73,11 +70,11 @@ let populateLogsInterval: ReturnType<typeof setInterval>;
 const populateLogs = () => {
   console.log(`Server is updating the sine log`);
   populateLogsInterval = setInterval(() => {
-    const next = sde.next();
+    const nextSet = sineDataEmitter.nextSet();
     logger.log({
       level: "sine",
-      message: "",
-      ...next,
+      message: "SineDataEmitter",
+      ...nextSet,
     });
   }, INTERVAL_MS);
 };
