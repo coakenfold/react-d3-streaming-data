@@ -58,6 +58,8 @@ export class ChartSine {
     axisX: any;
     axisY: any;
     line?: any;
+    gAxisX: any;
+    gAxisY: any;
   };
   canvas: {
     width: number;
@@ -67,13 +69,16 @@ export class ChartSine {
 
   constructor(opts: iChartSineConstructor) {
     this.hasBuilt = false;
+
     const dot = { radius: 2, ...opts.dot };
+
     const line = {
       width: 2,
       color: "black",
       fill: "none",
       ...opts.line,
     };
+
     const margin = {
       top: 30,
       right: 20,
@@ -81,7 +86,9 @@ export class ChartSine {
       left: 50,
       ...opts.margin,
     };
+
     const sine = { frequency: 1, ...opts.sine };
+
     const svgSettings = { width: 500, height: 500, className: "", ...opts.svg };
 
     const width = svgSettings.width - margin.left - margin.right;
@@ -96,42 +103,40 @@ export class ChartSine {
       .attr("class", `chart`)
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Axis scale
     const scaleX = d3.scaleLinear().range([0, width]);
     const scaleY = d3.scaleLinear().domain([-1, 1]).range([0, height]);
 
-    // axis
+    // Axis functions
     const axisX = d3.axisBottom(scaleX);
     const axisY = d3.axisLeft(scaleY).ticks(5);
 
-    svg
+    // Axis groups
+    const gAxisX = svg
       .append("g")
       .attr("class", "x axis")
       .attr("transform", `translate(0,${height})`)
       .call(axisX);
 
-    svg.append("g").attr("class", "y axis").call(axisY);
+    const gAxisY = svg.append("g").attr("class", "y axis").call(axisY);
 
     // Zoom
-    // const handleZoom = (e: any) => {
-    //   console.log("handleZoom");
-    //   d3.select("g.chart").attr("transform", e.transform);
+    const onZoom = ({ transform }: { transform: any }) => {
+      d3.select("path.line").attr("transform", transform);
 
-    //   d3.select(".x.axis").transition().call(axisX);
-    //   d3.select(".y.axis").transition().call(axisY);
-    // };
+      // Axis X
+      const zoomScaleX = transform.rescaleX(scaleX);
+      axisX.scale(zoomScaleX);
+      d3.select("g.axis.x").call(axisX as any);
 
-    // const zoomSvg = d3.zoom().on("zoom", (e: any) => {
-    //   console.log("zoomSvg");
-    //   d3.select("g.chart").attr("transform", e.transform);
-    // });
-    // d3.select("svg").call(zoomSvg);
+      // Axis Y
+      const zoomScaleY = transform.rescaleY(scaleY);
+      axisY.scale(zoomScaleY);
+      d3.select("g.axis.y").call(axisY as any);
+    };
 
-    // const zoomX = d3.zoom().on("zoom", (e: any) => {
-    //   console.log("zoomX");
-    //   d3.select(".x.axis").transition().call(axisX);
-    //   d3.select(".x.axis").attr("transform", e.transform);
-    // });
-    // d3.select(".x.axis").call(zoomX);
+    const zoomSvg = d3.zoom().on("zoom", onZoom);
+    d3.select("svg").call(zoomSvg as any);
 
     // save
     this.options = {
@@ -149,6 +154,8 @@ export class ChartSine {
       scaleY,
       axisX,
       axisY,
+      gAxisX,
+      gAxisY,
     };
   }
   /**
