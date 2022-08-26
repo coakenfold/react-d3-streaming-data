@@ -6,8 +6,50 @@ import {
   iChartSineConstructor,
 } from "../SineCoordinates/SineCoordinatesInterfaces";
 
-export const ChartSine = class {
-  //
+/***
+ * 
+ * @example 
+ * ```ts
+ const chartSine = new ChartSine(arg: {
+  domNode: HTMLDivElement;
+  margin?: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+  svg?: { width?: number; height?: number; className: string };
+  line?: {
+    width: number;
+    color?: string;
+    fill?: string;
+  };
+  dot?: { radius: number };
+  sine?: {
+    frequency: number;
+    amplitude?: number;
+    start?: number;
+  });
+
+  // Build the chart:
+  chartSine.build([{
+    timestamp: 1661481586997,
+    "x":8993,
+    "y":0.98180936061727
+  }]);
+  
+  // Update the chart:
+  chartSine.update({
+    timestamp: 1661481586997,
+    "x":8993,
+    "y":0.98180936061727
+  });
+  // Remove chart svg:
+  chartSine.destroy();
+  ```
+ */
+export class ChartSine {
+  // --------------------------------------------
   options: iChartSineConstructor & { line: iLine; sine: iSine };
   grapher: {
     svg: any;
@@ -21,9 +63,10 @@ export const ChartSine = class {
     width: number;
     height: number;
   };
-  hasBuilt = false;
-  //
+  hasBuilt: boolean;
+
   constructor(opts: iChartSineConstructor) {
+    this.hasBuilt = false;
     const dot = { radius: 2, ...opts.dot };
     const line = {
       width: 2,
@@ -108,12 +151,18 @@ export const ChartSine = class {
       axisY,
     };
   }
-  //
+  /**
+   *
+   * Converts realtime data from {x,y} to [x - startingX, y]
+   * @param sineData
+   */
   generatePathData(sineData: iSineDatum[]) {
-    const initialX = sineData[0]?.x || 0;
-    return sineData.map(({ x, y }) => [x - initialX, y]);
+    const startingX = sineData[0]?.x || 0;
+    return sineData.map(({ x, y }) => [x - startingX, y]);
   }
-  //
+  /**
+   * Draws the initial chart & axis
+   */
   build(sineData: iSineDatum[]) {
     // Reformat data
     const pathData = this.generatePathData(sineData);
@@ -154,6 +203,10 @@ export const ChartSine = class {
     this.grapher.scaleY = scaleY;
     this.grapher.scaleX = scaleX;
   }
+  /**
+   * Redraws the chart with updated data
+   * @param sineData
+   */
   update(sineData: iSineDatum[]) {
     // Reformat data
     const pathData = this.generatePathData(sineData);
@@ -162,7 +215,10 @@ export const ChartSine = class {
     const line = this.grapher.svg.select(".line");
     line.attr("d", this.grapher.line(pathData as [number, number][]));
   }
+  /**
+   * Removes svg
+   */
   destroy() {
     d3.select(`svg.${this.options.svg?.className}`).remove();
   }
-};
+}
