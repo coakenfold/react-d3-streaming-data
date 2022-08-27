@@ -13,6 +13,8 @@ const sineDataEmitter_1 = require("./sineDataEmitter");
 const logger_1 = require("./logger");
 const convertLogToArray_1 = require("./convertLogToArray");
 // ENV
+const temp = 1;
+console.log("creating different builds", temp);
 dotenv_1.default.config();
 const PORT = process.env.PORT;
 const URL = process.env.URL;
