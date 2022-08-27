@@ -1,7 +1,8 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import fs from "fs";
-import https from "https";
+// import https from "https";
+import http from "http";
 import WebSocket from "ws";
 import cors from "cors";
 
@@ -42,13 +43,14 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
   );
 });
 
-const server = https.createServer(
-  {
-    key: fs.readFileSync("server.key"),
-    cert: fs.readFileSync("server.cert"),
-  },
-  app
-);
+// const server = https.createServer(
+//   {
+//     key: fs.readFileSync("server.key"),
+//     cert: fs.readFileSync("server.cert"),
+//   },
+//   app
+// );
+const server = http.createServer(app);
 
 const sineDataEmitter = new SineDataEmitter();
 // WebSocket
