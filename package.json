@@ -7,6 +7,6 @@
     "postinstall-frontend": "cd frontend && npm ci && npm run build",
     "postinstall-backend": "cd backend && npm ci && tsc"
   },
-  "author": "Chad Oakenfold",
+  "author": "Chad Oakenfold.",
   "license": "ISC"
 }
