@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "postinstall": "if [ $ENV_FRONTEND ]; then npm run postinstall-frontend; elif [ $ENV_BACKEND ]; then npm run postinstall-backend; else echo no environment detected, please set ENV_FRONTEND or ENV_BACKEND; fi",
-    "postinstall-frontend": "cd frontend && npm install && npm run build",
-    "postinstall-backend": "cd backend && npm install && tsc"
+    "postinstall-frontend": "cd frontend && npm ci && npm run build",
+    "postinstall-backend": "cd backend && npm ci && tsc"
   },
   "author": "Chad Oakenfold",
   "license": "ISC"
