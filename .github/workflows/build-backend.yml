@@ -11,6 +11,9 @@ jobs:
   run-action:
     name: Run action
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
 
     steps:
       - uses: actions/checkout@v2
@@ -22,5 +25,8 @@ jobs:
           cache: "npm"
           cache-dependency-path: package-lock.json
 
-      - name: Do it all
-        run: npm run postinstall-backend
+      - name: Install
+        run: npm ci
+
+      - name: Compile
+        run: npm run build
