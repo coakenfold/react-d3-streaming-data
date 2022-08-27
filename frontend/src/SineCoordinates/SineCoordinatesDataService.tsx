@@ -7,6 +7,7 @@ import {
 } from "./SineCoordinatesState";
 
 export const getSineData = () => {
+  console.log("getSineData", process.env.REACT_APP_SINE_DATA_URL, process.env);
   return window
     .fetch(process.env.REACT_APP_SINE_DATA_URL as string)
     .then(
