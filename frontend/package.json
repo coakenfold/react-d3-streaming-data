@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "author": "Chad Oakenfold",
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.5",
     "@tanstack/react-table": "^8.5.11",
