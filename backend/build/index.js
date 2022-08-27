@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const fs_1 = __importDefault(require("fs"));
-// import https from "https";
 const http_1 = __importDefault(require("http"));
 const ws_1 = __importDefault(require("ws"));
 const cors_1 = __importDefault(require("cors"));
@@ -14,11 +13,8 @@ const sineDataEmitter_1 = require("./sineDataEmitter");
 const logger_1 = require("./logger");
 const convertLogToArray_1 = require("./convertLogToArray");
 // ENV
-const temp = 1;
-console.log("creating different builds", temp);
 dotenv_1.default.config();
 const PORT = process.env.PORT;
-const URL = process.env.URL;
 // CONSTANTS
 const INTERVAL_MS = 1000;
 const app = (0, express_1.default)();
@@ -35,13 +31,6 @@ app.get("/", (req, res, next) => {
         }
     });
 });
-// const server = https.createServer(
-//   {
-//     key: fs.readFileSync("server.key"),
-//     cert: fs.readFileSync("server.cert"),
-//   },
-//   app
-// );
 const server = http_1.default.createServer(app);
 const sineDataEmitter = new sineDataEmitter_1.SineDataEmitter();
 // WebSocket
@@ -60,14 +49,14 @@ wss.on("connection", (ws) => {
 // Populate logs when server is running
 let populateLogsInterval;
 const populateLogs = () => {
-    console.log(`Server is updating the sine log`);
+    console.log(`⚡️ BE server is updating the logs`);
     populateLogsInterval = setInterval(() => {
         const nextSet = sineDataEmitter.nextSet();
         logger_1.logger.log(Object.assign({ level: "sine", message: "SineDataEmitter" }, nextSet));
     }, INTERVAL_MS);
 };
 server.listen(PORT, () => {
-    console.log(`⚡️ Server is running at ${URL}:${PORT}`);
+    console.log(`⚡️ BE server running on port ${PORT}`);
     if (populateLogsInterval === undefined) {
         populateLogs();
     }

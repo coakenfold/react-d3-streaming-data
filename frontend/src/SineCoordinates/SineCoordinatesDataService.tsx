@@ -6,10 +6,15 @@ import {
   resetRealtime,
 } from "./SineCoordinatesState";
 
+const urlLog =
+  process.env.REACT_APP_URL_LOG_PROD || process.env.REACT_APP_URL_LOG_DEV;
+
+const urlRealtime =
+  process.env.REACT_APP_URL_REALTIME_PROD ||
+  process.env.REACT_APP_URL_REALTIME_DEV;
 export const getSineData = () => {
-  console.log("getSineData", process.env.REACT_APP_SINE_DATA_URL, process.env);
   return window
-    .fetch(process.env.REACT_APP_SINE_DATA_URL as string)
+    .fetch(urlLog as string)
     .then(
       (response) => {
         if (response.status === 200) {
@@ -48,9 +53,10 @@ export const SineCoordinatesDataService = class {
       this.onErrorLog = opts.onErrorLog;
     }
   }
+
   getRealtime() {
     this.websocket = new WebSocketHelper({
-      url: process.env.REACT_APP_URL_WEBSOCKET_SERVER as string,
+      url: urlRealtime as string,
       onMessage: (event: any) => {
         store.dispatch(updateRealtime(JSON.parse(event.data)));
       },

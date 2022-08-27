@@ -1,3 +1,2 @@
-REACT_APP_URL_WEBSOCKET_SERVER="wss://localhost:8000/"
-REACT_APP_SINE_DATA_URL="https://localhost:8000/"
-HTTPS=true
+REACT_APP_URL_REALTIME_DEV="ws://localhost:8000/"
+REACT_APP_URL_LOG_DEV="http://localhost:8000/"

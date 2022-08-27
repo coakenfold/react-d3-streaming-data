@@ -1,7 +1,7 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import fs from "fs";
-// import https from "https";
+
 import http from "http";
 import WebSocket from "ws";
 import cors from "cors";
@@ -11,11 +11,8 @@ import { logger, latestLog } from "./logger";
 import { convertLogToArray } from "./convertLogToArray";
 
 // ENV
-const temp = 1;
-console.log("creating different builds", temp);
 dotenv.config();
 const PORT = process.env.PORT;
-const URL = process.env.URL;
 
 // CONSTANTS
 const INTERVAL_MS = 1000;
@@ -43,16 +40,10 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
   );
 });
 
-// const server = https.createServer(
-//   {
-//     key: fs.readFileSync("server.key"),
-//     cert: fs.readFileSync("server.cert"),
-//   },
-//   app
-// );
 const server = http.createServer(app);
 
 const sineDataEmitter = new SineDataEmitter();
+
 // WebSocket
 const wss = new WebSocket.Server({ server });
 wss.on("connection", (ws: WebSocket) => {
@@ -72,7 +63,7 @@ wss.on("connection", (ws: WebSocket) => {
 // Populate logs when server is running
 let populateLogsInterval: ReturnType<typeof setInterval>;
 const populateLogs = () => {
-  console.log(`Server is updating the sine log`);
+  console.log(`⚡️ BE server is updating the logs`);
   populateLogsInterval = setInterval(() => {
     const nextSet = sineDataEmitter.nextSet();
     logger.log({
@@ -84,7 +75,8 @@ const populateLogs = () => {
 };
 
 server.listen(PORT, () => {
-  console.log(`⚡️ Server is running at ${URL}:${PORT}`);
+  console.log(`⚡️ BE server running on port ${PORT}`);
+
   if (populateLogsInterval === undefined) {
     populateLogs();
   }
