@@ -10,6 +10,8 @@ import { logger, latestLog } from "./logger";
 import { convertLogToArray } from "./convertLogToArray";
 
 // ENV
+const temp = 1;
+console.log("creating different builds", temp);
 dotenv.config();
 const PORT = process.env.PORT;
 const URL = process.env.URL;

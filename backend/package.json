@@ -8,7 +8,7 @@
     "start": "node build/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q build/index.js\""
   },
-  "author": "Chad Oakenfold.2",
+  "author": "Chad Oakenfold",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
