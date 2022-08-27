@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const fs_1 = __importDefault(require("fs"));
-const https_1 = __importDefault(require("https"));
+// import https from "https";
+const http_1 = __importDefault(require("http"));
 const ws_1 = __importDefault(require("ws"));
 const cors_1 = __importDefault(require("cors"));
 const sineDataEmitter_1 = require("./sineDataEmitter");
@@ -34,10 +35,14 @@ app.get("/", (req, res, next) => {
         }
     });
 });
-const server = https_1.default.createServer({
-    key: fs_1.default.readFileSync("server.key"),
-    cert: fs_1.default.readFileSync("server.cert"),
-}, app);
+// const server = https.createServer(
+//   {
+//     key: fs.readFileSync("server.key"),
+//     cert: fs.readFileSync("server.cert"),
+//   },
+//   app
+// );
+const server = http_1.default.createServer(app);
 const sineDataEmitter = new sineDataEmitter_1.SineDataEmitter();
 // WebSocket
 const wss = new ws_1.default.Server({ server });
