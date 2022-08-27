@@ -19,7 +19,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "compile": "tsc",
     "build": "react-scripts build",
     "serve": "serve -s build",
     "test": "react-scripts test",
