@@ -9,7 +9,6 @@ backend/.env
 backend/server.cert
 backend/server.key
 backend/node_modules
-backend/build
 backend/logs
 
 .DS_Store

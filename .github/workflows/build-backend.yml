@@ -30,3 +30,15 @@ jobs:
 
       - name: Compile
         run: npm run build
+
+      - name: Setup git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: Commit
+        run: |
+          # Stage the file, commit and push
+          git add build/*
+          git commit -m "[CI] Compiled backend"
+          git push origin main
