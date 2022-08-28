@@ -5,7 +5,6 @@ import type { RootState } from "../state";
 
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Pagination from "react-bootstrap/Pagination";
 import Row from "react-bootstrap/Row";
@@ -75,15 +74,15 @@ export const TableSine = () => {
   });
 
   return (
-    <Container>
-      <Row>
-        <Col className="mb-1" xs="auto">
+    <div className="TableSine">
+      <Row className="mb-3">
+        <Col className="my-1" xs="auto">
           <Button variant="outline-primary" onClick={() => rerender()}>
             Get latest data
           </Button>
         </Col>
-        <Col className="mb-1" xs="auto">
-          <Pagination className="mb-4">
+        <Col className="my-1" xs="auto">
+          <Pagination className="my-0">
             <Pagination.First
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
@@ -107,9 +106,8 @@ export const TableSine = () => {
             />
           </Pagination>
         </Col>
-        <Col className="mb-1" xs="auto">
+        <Col className="my-1" xs="auto">
           <Form.Select
-            className="mb-4"
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
@@ -122,10 +120,10 @@ export const TableSine = () => {
             ))}
           </Form.Select>
         </Col>
-        <Col className="mb-1" xs="auto">
-          <Row className="d-flex align-items-center">
-            <Col>Go to page&nbsp;</Col>
-            <Col>
+        <Col className="my-1" md="5">
+          <div className="d-flex align-items-center">
+            <div className="mr-2">Page&nbsp;</div>
+            <form className="form-inline">
               <input
                 type="number"
                 defaultValue={table.getState().pagination.pageIndex + 1}
@@ -133,10 +131,10 @@ export const TableSine = () => {
                   const page = e.target.value ? Number(e.target.value) - 1 : 0;
                   table.setPageIndex(page);
                 }}
-                className="border p-1 rounded w-16"
+                className="border p-1 rounded"
               />
-            </Col>
-          </Row>
+            </form>
+          </div>
         </Col>
       </Row>
       <Row>
@@ -187,9 +185,9 @@ export const TableSine = () => {
         </table>
       </Row>
 
-      <Row>
-        <Col xs="auto" md={7} lg={4}>
-          <Pagination className="mb-4">
+      <Row className="mt-3">
+        <Col className="my-1" xs="auto">
+          <Pagination className="my-0">
             <Pagination.First
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
@@ -213,9 +211,9 @@ export const TableSine = () => {
             />
           </Pagination>
         </Col>
-        <Col xs="auto" md={4}>
+        <Col className="my-1" xs="auto" md={4}>
           <Form.Select
-            className="mb-4"
+            className="my-0"
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
@@ -228,21 +226,23 @@ export const TableSine = () => {
             ))}
           </Form.Select>
         </Col>
-        <Col xs="auto" md={4}>
-          <div className="mb-4">
-            <span>Go to page&nbsp;</span>
-            <input
-              type="number"
-              defaultValue={table.getState().pagination.pageIndex + 1}
-              onChange={(e) => {
-                const page = e.target.value ? Number(e.target.value) - 1 : 0;
-                table.setPageIndex(page);
-              }}
-              className="border p-1 rounded w-16"
-            />
+        <Col className="my-1" md="5">
+          <div className="d-flex align-items-center">
+            <div className="mr-2">Page&nbsp;</div>
+            <form className="form-inline">
+              <input
+                type="number"
+                defaultValue={table.getState().pagination.pageIndex + 1}
+                onChange={(e) => {
+                  const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                  table.setPageIndex(page);
+                }}
+                className="border p-1 rounded"
+              />
+            </form>
           </div>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };

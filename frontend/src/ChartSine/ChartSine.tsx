@@ -19,9 +19,8 @@ export const ChartSine = () => {
         bottom: 40,
         left: 40,
       },
-      dot: { radius: 10 },
       sine: { frequency: 25 },
-      line: { color: "black", width: 1 },
+      line: { color: "#343a40", width: 2 },
     });
 
     setGrapher(chart);

@@ -1,14 +1,16 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import "./App.css";
 import { AppProviders } from "./AppProviders";
 import { SineCoordinates } from "./SineCoordinates/SineCoordinates";
 
 export const App = () => {
   return (
-    <AppProviders>
-      <SineCoordinates />
-    </AppProviders>
+    <div className="App">
+      <AppProviders>
+        <SineCoordinates />
+      </AppProviders>
+    </div>
   );
 };
 
