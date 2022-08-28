@@ -25,6 +25,5 @@ export interface iChartSineConstructor {
   };
   svg?: { width?: number; height?: number; className: string };
   line?: iLine;
-  dot?: { radius: number };
   sine?: iSine;
 }
