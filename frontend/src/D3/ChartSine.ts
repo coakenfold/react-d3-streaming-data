@@ -24,7 +24,6 @@ import {
     color?: string;
     fill?: string;
   };
-  dot?: { radius: number };
   sine?: {
     frequency: number;
     amplitude?: number;
@@ -69,8 +68,6 @@ export class ChartSine {
 
   constructor(opts: iChartSineConstructor) {
     this.hasBuilt = false;
-
-    const dot = { radius: 2, ...opts.dot };
 
     const line = {
       width: 2,
@@ -141,7 +138,6 @@ export class ChartSine {
     // save
     this.options = {
       ...opts,
-      dot,
       line,
       margin,
       sine,
