@@ -68,8 +68,8 @@ export const SineCoordinates = () => {
         {tabIndex === 0 && (
           <div style={{ maxWidth: "700px", margin: "0 auto" }}>
             {realtimeError === true && (
-              <div className="alert alert-info" role="alert">
-                Realtime updates are temporarily unavailable
+              <div className="alert alert-info mt-4" role="alert">
+                Chart data is temporarily unavailable
               </div>
             )}
             {realtimeError === false && <ChartSine />}
@@ -78,8 +78,8 @@ export const SineCoordinates = () => {
         {tabIndex === 1 && (
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
             {logError === true && (
-              <div className="alert alert-info" role="alert">
-                Sine logs are temporarily unavailable
+              <div className="alert alert-info mt-4" role="alert">
+                Table data is temporarily unavailable
               </div>
             )}
             {logError === false && <TableSine />}

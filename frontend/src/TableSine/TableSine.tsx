@@ -17,7 +17,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { getSineData } from "../SineCoordinates/SineCoordinatesDataService";
+import { fetchSineData } from "../SineCoordinates/SineCoordinatesDataService";
 import { replaceLog } from "../SineCoordinates/SineCoordinatesState";
 import type { iSineDatum } from "../SineCoordinates/SineCoordinatesInterfaces";
 
@@ -52,7 +52,7 @@ export const TableSine = () => {
   // Log
   useEffect(() => {
     const fetchData = async () => {
-      const { ok, data } = await getSineData();
+      const { ok, data } = await fetchSineData();
       if (ok) {
         dispatch(replaceLog(data));
       }
@@ -61,7 +61,7 @@ export const TableSine = () => {
   }, [dispatch]);
 
   const rerender = async () => {
-    const { ok, data } = await getSineData();
+    const { ok, data } = await fetchSineData();
     if (ok) {
       dispatch(replaceLog(data));
     }

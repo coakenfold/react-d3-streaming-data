@@ -1,5 +1,5 @@
 import { store } from "../state";
-import { WebSocketHelper } from "../WebSocketHelper";
+
 import {
   updateRealtime,
   replaceLog,
@@ -12,7 +12,8 @@ const urlLog =
 const urlRealtime =
   process.env.REACT_APP_URL_REALTIME_PROD ||
   process.env.REACT_APP_URL_REALTIME_DEV;
-export const getSineData = () => {
+
+export const fetchSineData = () => {
   return window
     .fetch(urlLog as string)
     .then(
@@ -39,31 +40,87 @@ export interface iSineCoordinatesDataService {
   onErrorRealtime?: (msg?: any) => void;
   onErrorLog?: (msg?: any) => void;
 }
-const initialOnErroRealtime = (msg?: any) => {};
-const initialOnErrorLog = (msg?: any) => {};
+const onErrorRealtimeDefault = (msg?: any) => {};
+const onErrorLogDefault = (msg?: any) => {};
 export const SineCoordinatesDataService = class {
+  logAttemptsCount: number;
+  logAttemptsMax: number;
+  logAttemptTimeout: any;
+  onErrorLog: (msg: any) => void;
+  onErrorRealtime: (msg: any) => void;
+  realtimeAttemptsCount: number;
+  realtimeAttemptsMax: number;
+  realtimeAttemptTimeout: number | undefined;
   websocket: any;
-  onErrorRealtime = initialOnErroRealtime;
-  onErrorLog = initialOnErrorLog;
   constructor(opts = {} as iSineCoordinatesDataService) {
-    if (opts?.onErrorRealtime) {
-      this.onErrorRealtime = opts.onErrorRealtime;
-    }
-    if (opts?.onErrorLog) {
-      this.onErrorLog = opts.onErrorLog;
+    this.logAttemptsCount = 0;
+    this.logAttemptsMax = 5;
+    this.logAttemptTimeout = undefined;
+    this.onErrorLog = opts?.onErrorLog || onErrorLogDefault;
+    this.onErrorRealtime = opts?.onErrorRealtime || onErrorRealtimeDefault;
+    this.realtimeAttemptsCount = 0;
+    this.realtimeAttemptsMax = 5;
+    this.realtimeAttemptTimeout = undefined;
+  }
+  getRealtime() {
+    if (this.websocket === undefined) {
+      this.realtimeAttemptsCount++;
+      this.websocket = new WebSocket(urlRealtime as string);
+
+      this.websocket.onopen = () => {
+        console.log("[open] Connection established");
+        clearTimeout(this.realtimeAttemptTimeout);
+        this.realtimeAttemptsCount = 0;
+      };
+
+      this.websocket.onmessage = (event: any) => {
+        store.dispatch(updateRealtime(JSON.parse(event.data)));
+      };
+
+      this.websocket.onclose = (event: any) => {
+        if (event.wasClean) {
+          console.log(
+            `[onclose] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+          );
+        } else {
+          // e.g. server process killed or network down
+          // event.code is usually 1006 in this case
+          console.log("[onclose] Connection died");
+        }
+      };
+
+      this.websocket.onerror = (err: any) => {
+        this.websocket.close();
+        this.websocket = undefined;
+
+        if (this.realtimeAttemptsCount < this.realtimeAttemptsMax) {
+          console.log("[onerror] reconnecting");
+          this.realtimeAttemptTimeout = setTimeout(() => {
+            this.getRealtime();
+          }, 2000) as unknown as number;
+        } else {
+          this.onErrorRealtime(err);
+        }
+      };
     }
   }
 
-  getRealtime() {
-    this.websocket = new WebSocketHelper({
-      url: urlRealtime as string,
-      onMessage: (event: any) => {
-        store.dispatch(updateRealtime(JSON.parse(event.data)));
-      },
-      onError: (err) => {
-        this.onErrorRealtime(err);
-      },
-    });
+  async getLog() {
+    this.logAttemptsCount++;
+    const logResult = await fetchSineData();
+    if (logResult.ok) {
+      clearTimeout(this.logAttemptTimeout);
+      this.logAttemptsCount = 0;
+      store.dispatch(replaceLog(logResult.data));
+    } else {
+      if (this.logAttemptsCount < this.logAttemptsMax) {
+        this.logAttemptTimeout = setTimeout(() => {
+          this.getLog();
+        }, 2000) as unknown as number;
+      } else {
+        this.onErrorLog(logResult);
+      }
+    }
   }
   async init() {
     // Realtime
@@ -71,19 +128,20 @@ export const SineCoordinatesDataService = class {
     this.getRealtime();
 
     // Log
-    const logResult = await getSineData();
-    if (logResult.ok) {
-      store.dispatch(replaceLog(logResult.data));
-    } else {
-      this.onErrorLog(logResult);
-    }
+    this.getLog();
   }
   destroy() {
-    this.onErrorRealtime = initialOnErroRealtime;
-    this.onErrorLog = initialOnErrorLog;
-    if (this.websocket.socket.readyState === WebSocket.OPEN) {
-      this.websocket.socket.close();
+    if (this.websocket.readyState === WebSocket.OPEN) {
+      this.websocket.close();
     }
+    this.logAttemptsCount = 0;
+    this.logAttemptsMax = 5;
+    this.logAttemptTimeout = undefined;
+    this.onErrorLog = onErrorLogDefault;
+    this.onErrorRealtime = onErrorRealtimeDefault;
+    this.realtimeAttemptsCount = 0;
+    this.realtimeAttemptsMax = 5;
+    this.realtimeAttemptTimeout = undefined;
     this.websocket = undefined;
   }
 };
