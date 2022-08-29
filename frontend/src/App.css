@@ -1,4 +1,11 @@
 body {
     background-color: #E1E8EC;
-    margin: 2rem;
+    
+    margin: 10px;
+}
+
+@media (min-width: 768px) { 
+    body {
+        margin: 2rem;
+    }
 }
