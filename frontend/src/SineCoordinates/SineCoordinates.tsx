@@ -63,7 +63,7 @@ export const SineCoordinates = () => {
               variant="outline-primary"
               active={tabIndex === 0}
               onClick={() => setTabIndex(0)}
-              data-testid="buttonChart"
+              data-testid="buttonRealtime"
             >
               Chart
             </Button>
@@ -71,7 +71,7 @@ export const SineCoordinates = () => {
               variant="outline-primary"
               active={tabIndex === 1}
               onClick={() => setTabIndex(1)}
-              data-testid="buttonTable"
+              data-testid="buttonLog"
             >
               Table
             </Button>
@@ -80,7 +80,7 @@ export const SineCoordinates = () => {
       </Row>
       <Row>
         {tabIndex === 0 && (
-          <div>
+          <div data-testid="groupRealtime">
             {realtimeStatus.error && (
               <div className="alert alert-danger mt-4" role="alert">
                 {realtimeStatus.count} - The chart data is unavailable at this
@@ -96,7 +96,7 @@ export const SineCoordinates = () => {
           </div>
         )}
         {tabIndex === 1 && (
-          <div>
+          <div data-testid="groupLog">
             {logStatus.error && (
               <div className="alert alert-danger mt-4" role="alert">
                 {logStatus.count} - The table data is unavailable at this time
