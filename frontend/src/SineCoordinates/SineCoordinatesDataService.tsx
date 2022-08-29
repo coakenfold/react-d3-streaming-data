@@ -6,16 +6,16 @@ import {
   resetRealtime,
 } from "./SineCoordinatesState";
 
-const urlLog =
+const URL_LOG =
   process.env.REACT_APP_URL_LOG_PROD || process.env.REACT_APP_URL_LOG_DEV;
 
-const urlRealtime =
+const URL_REALTIME =
   process.env.REACT_APP_URL_REALTIME_PROD ||
   process.env.REACT_APP_URL_REALTIME_DEV;
 
 export const fetchSineData = () => {
   return window
-    .fetch(urlLog as string)
+    .fetch(URL_LOG as string)
     .then(
       (response) => {
         if (response.status === 200) {
@@ -36,18 +36,31 @@ export const fetchSineData = () => {
     });
 };
 
-export interface iSineCoordinatesDataService {
-  onErrorRealtime?: (msg?: any) => void;
-  onErrorLog?: (msg?: any) => void;
+export enum eAttemptStatus {
+  Idle = "IDLE",
+  InProgress = "IN_PROGRESS",
+  Success = "SUCCESS",
+  Error = "ERROR",
 }
-const onErrorRealtimeDefault = (msg?: any) => {};
-const onErrorLogDefault = (msg?: any) => {};
+export enum eAttemptType {
+  Log = "LOG",
+  Realtime = "REALTIME",
+}
+export interface iOnAttemptUpdateArg {
+  type: eAttemptType;
+  status: eAttemptStatus;
+  count: number;
+  error?: any;
+}
+export interface iSineCoordinatesDataService {
+  onAttemptUpdate?: (attemptStatus: iOnAttemptUpdateArg) => void;
+}
+const onAttemptUpdateDefault = (attemptStatus: iOnAttemptUpdateArg) => {};
 export const SineCoordinatesDataService = class {
   logAttemptsCount: number;
   logAttemptsMax: number;
   logAttemptTimeout: any;
-  onErrorLog: (msg: any) => void;
-  onErrorRealtime: (msg: any) => void;
+  onAttemptUpdate: iSineCoordinatesDataService["onAttemptUpdate"];
   realtimeAttemptsCount: number;
   realtimeAttemptsMax: number;
   realtimeAttemptTimeout: number | undefined;
@@ -56,8 +69,7 @@ export const SineCoordinatesDataService = class {
     this.logAttemptsCount = 0;
     this.logAttemptsMax = 5;
     this.logAttemptTimeout = undefined;
-    this.onErrorLog = opts?.onErrorLog || onErrorLogDefault;
-    this.onErrorRealtime = opts?.onErrorRealtime || onErrorRealtimeDefault;
+    this.onAttemptUpdate = opts?.onAttemptUpdate || onAttemptUpdateDefault;
     this.realtimeAttemptsCount = 0;
     this.realtimeAttemptsMax = 5;
     this.realtimeAttemptTimeout = undefined;
@@ -65,11 +77,21 @@ export const SineCoordinatesDataService = class {
   getRealtime() {
     if (this.websocket === undefined) {
       this.realtimeAttemptsCount++;
-      this.websocket = new WebSocket(urlRealtime as string);
+      this.onAttemptUpdate?.({
+        type: eAttemptType.Realtime,
+        status: eAttemptStatus.InProgress,
+        count: this.realtimeAttemptsCount,
+      });
+      this.websocket = new WebSocket(URL_REALTIME as string);
 
       this.websocket.onopen = () => {
         console.log("[open] Connection established");
         clearTimeout(this.realtimeAttemptTimeout);
+        this.onAttemptUpdate?.({
+          type: eAttemptType.Realtime,
+          status: eAttemptStatus.Success,
+          count: this.realtimeAttemptsCount,
+        });
         this.realtimeAttemptsCount = 0;
       };
 
@@ -94,12 +116,16 @@ export const SineCoordinatesDataService = class {
         this.websocket = undefined;
 
         if (this.realtimeAttemptsCount < this.realtimeAttemptsMax) {
-          console.log("[onerror] reconnecting");
           this.realtimeAttemptTimeout = setTimeout(() => {
             this.getRealtime();
           }, 2000) as unknown as number;
         } else {
-          this.onErrorRealtime(err);
+          this.onAttemptUpdate?.({
+            type: eAttemptType.Realtime,
+            status: eAttemptStatus.Error,
+            count: this.realtimeAttemptsCount,
+            error: err,
+          });
         }
       };
     }
@@ -107,9 +133,19 @@ export const SineCoordinatesDataService = class {
 
   async getLog() {
     this.logAttemptsCount++;
+    this.onAttemptUpdate?.({
+      type: eAttemptType.Log,
+      status: eAttemptStatus.InProgress,
+      count: this.logAttemptsCount,
+    });
     const logResult = await fetchSineData();
     if (logResult.ok) {
       clearTimeout(this.logAttemptTimeout);
+      this.onAttemptUpdate?.({
+        type: eAttemptType.Log,
+        status: eAttemptStatus.Success,
+        count: this.logAttemptsCount,
+      });
       this.logAttemptsCount = 0;
       store.dispatch(replaceLog(logResult.data));
     } else {
@@ -118,7 +154,12 @@ export const SineCoordinatesDataService = class {
           this.getLog();
         }, 2000) as unknown as number;
       } else {
-        this.onErrorLog(logResult);
+        this.onAttemptUpdate?.({
+          type: eAttemptType.Log,
+          status: eAttemptStatus.Error,
+          count: this.logAttemptsCount,
+          error: logResult,
+        });
       }
     }
   }
@@ -137,8 +178,7 @@ export const SineCoordinatesDataService = class {
     this.logAttemptsCount = 0;
     this.logAttemptsMax = 5;
     this.logAttemptTimeout = undefined;
-    this.onErrorLog = onErrorLogDefault;
-    this.onErrorRealtime = onErrorRealtimeDefault;
+    this.onAttemptUpdate = onAttemptUpdateDefault;
     this.realtimeAttemptsCount = 0;
     this.realtimeAttemptsMax = 5;
     this.realtimeAttemptTimeout = undefined;

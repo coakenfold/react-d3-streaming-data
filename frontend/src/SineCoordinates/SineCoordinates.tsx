@@ -6,7 +6,12 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
 import "./SineCoordinates.css";
-import { SineCoordinatesDataService } from "./SineCoordinatesDataService";
+import {
+  SineCoordinatesDataService,
+  eAttemptType,
+  iOnAttemptUpdateArg,
+  eAttemptStatus,
+} from "./SineCoordinatesDataService";
 
 import { ChartSine } from "../ChartSine/ChartSine";
 import { TableSine } from "../TableSine/TableSine";
@@ -14,18 +19,26 @@ import { TableSine } from "../TableSine/TableSine";
 export const SineCoordinates = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [dataService, setDataService] = useState<any>();
-  const [logError, setLogError] = useState(false);
-  const [realtimeError, setRealtimeError] = useState(false);
+  const [realtimeStatus, setRealtimeStatus] = useState<iOnAttemptUpdateArg>({
+    type: eAttemptType.Realtime,
+    status: eAttemptStatus.Idle,
+    count: 0,
+  });
+  const [logStatus, setLogStatus] = useState<iOnAttemptUpdateArg>({
+    type: eAttemptType.Log,
+    status: eAttemptStatus.Idle,
+    count: 0,
+  });
   useEffect(() => {
     if (dataService === undefined) {
       const sc = new SineCoordinatesDataService({
-        onErrorLog: (errLog) => {
-          console.log("Error getting logs", errLog);
-          setLogError(true);
-        },
-        onErrorRealtime: (errLog) => {
-          console.log("Error connecting to websocket", errLog);
-          setRealtimeError(true);
+        onAttemptUpdate: (attemptStatus) => {
+          if (attemptStatus.type === eAttemptType.Realtime) {
+            setRealtimeStatus(attemptStatus);
+          }
+          if (attemptStatus.type === eAttemptType.Log) {
+            setLogStatus(attemptStatus);
+          }
         },
       });
       setDataService(sc);
@@ -37,6 +50,7 @@ export const SineCoordinates = () => {
       dataService?.destroy();
     };
   }, [dataService]);
+
   return (
     <div className="SineCoordinates">
       <Row>
@@ -66,23 +80,34 @@ export const SineCoordinates = () => {
       </Row>
       <Row>
         {tabIndex === 0 && (
-          <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-            {realtimeError === true && (
-              <div className="alert alert-info mt-4" role="alert">
-                Chart data is temporarily unavailable
+          <div>
+            {realtimeStatus.error && (
+              <div className="alert alert-danger mt-4" role="alert">
+                {realtimeStatus.count} - The chart data is unavailable at this
+                time
               </div>
             )}
-            {realtimeError === false && <ChartSine />}
+            {realtimeStatus.status === eAttemptStatus.InProgress && (
+              <div className="alert alert-warning mt-4" role="alert">
+                {realtimeStatus.count} - Fetching chart data
+              </div>
+            )}
+            {realtimeStatus.status === eAttemptStatus.Success && <ChartSine />}
           </div>
         )}
         {tabIndex === 1 && (
-          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            {logError === true && (
-              <div className="alert alert-info mt-4" role="alert">
-                Table data is temporarily unavailable
+          <div>
+            {logStatus.error && (
+              <div className="alert alert-danger mt-4" role="alert">
+                {logStatus.count} - The table data is unavailable at this time
               </div>
             )}
-            {logError === false && <TableSine />}
+            {logStatus.status === eAttemptStatus.InProgress && (
+              <div className="alert alert-warning mt-4" role="alert">
+                {logStatus.count} - Fetching table data
+              </div>
+            )}
+            {logStatus.status === eAttemptStatus.Success && <TableSine />}
           </div>
         )}
       </Row>
