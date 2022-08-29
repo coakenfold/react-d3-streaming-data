@@ -65,7 +65,7 @@ export const SineCoordinates = () => {
               onClick={() => setTabIndex(0)}
               data-testid="buttonRealtime"
             >
-              Chart
+              Graph
             </Button>
             <Button
               variant="outline-primary"
@@ -83,13 +83,12 @@ export const SineCoordinates = () => {
           <div data-testid="groupRealtime">
             {realtimeStatus.error && (
               <div className="alert alert-danger mt-4" role="alert">
-                {realtimeStatus.count} - The chart data is unavailable at this
-                time
+                {realtimeStatus.count} - Graph data is unavailable at this time
               </div>
             )}
             {realtimeStatus.status === eAttemptStatus.InProgress && (
               <div className="alert alert-warning mt-4" role="alert">
-                {realtimeStatus.count} - Fetching chart data
+                {realtimeStatus.count} - Fetching graph data
               </div>
             )}
             {realtimeStatus.status === eAttemptStatus.Success && <ChartSine />}
@@ -99,7 +98,7 @@ export const SineCoordinates = () => {
           <div data-testid="groupLog">
             {logStatus.error && (
               <div className="alert alert-danger mt-4" role="alert">
-                {logStatus.count} - The table data is unavailable at this time
+                {logStatus.count} - Table data is unavailable at this time
               </div>
             )}
             {logStatus.status === eAttemptStatus.InProgress && (
